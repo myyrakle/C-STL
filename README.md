@@ -7,6 +7,9 @@ C++의 std::array에 해당하는 매크로는 decl_array입니다.
 아래와 같이 선언하면 int 타입에 길이가 10인 배열 타입이 int_array라는 이름으로 구체화됩니다.  
 decl_array(int_array, int, 10);
   
+그리고 객체의 생성은 아래와 같이 합니다. 꼭 make를 쓰지 않아도 되지만 권장하지 않습니다.  
+int_array arr = make_int_array();
+  
   
 매크로의 목록과 현황은 아래와 같습니다.  
 decl_array : 컴파일타임 정적 배열. 구현 완료  
