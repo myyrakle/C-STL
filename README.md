@@ -8,7 +8,7 @@ C++의 std::array에 해당하는 매크로는 decl_array입니다.
 decl_array(int_array, int, 10);
   
   
-매크로의 목록과 현황은 아래와 같습니다.
+매크로의 목록과 현황은 아래와 같습니다.  
 decl_array : 컴파일타임 정적 배열. 구현 완료  
 decl_darray : 런타임 고정배열. 미구현  
 decl_vector : 런타임 가변배열. 구현중  
