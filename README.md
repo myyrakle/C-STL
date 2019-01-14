@@ -22,6 +22,6 @@ decl_treemap : 트리맵. 미구현
 decl_hashset : 해시셋. 미구현  
 decl_hashmap : 해시맵. 미구현  
 decl_stack : 스택. 구현 완료  
-decl_queue : 큐. 구현   
+decl_queue : 큐. 구현 완료  
 decl_maxheap : 최대 힙. 미구현  
 decl_minheap : 최소 힙. 미구현  
