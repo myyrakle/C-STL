@@ -69,6 +69,8 @@ void declname##_clear(declname* self){ \
 	} \
 } \
 \
+declname make_##declname(void); \
+\
 declname make_##declname(void){ \
 	declname temp = { \
 		.push= declname##_push, \
