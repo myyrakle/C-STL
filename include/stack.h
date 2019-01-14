@@ -26,6 +26,7 @@ struct declname \
 	type  (*top)(const declname*);  \
 	size_t (*size)(const declname*); \
 	bool  (*empty)(const declname*); \
+	void (*clear)(declname*); \
 }; \
 \
 void declname##_push(declname*,type); \
@@ -33,6 +34,7 @@ void declname##_pop(declname*); \
 type declname##_top(const declname*); \
 size_t  declname##_size(const declname*); \
 bool declname##_empty(const declname*); \
+void declname##_clear(declname*); \
 \
 void declname##_push(declname* self,type d){ \
 	declname##_node *ptr = (declname##_node*)malloc(sizeof(declname##_node)); \
@@ -61,6 +63,12 @@ bool declname##_empty(const declname* self){ \
 	return self->dcnt?false:true; \
 } \
 \
+void declname##_clear(declname* self){ \
+	while(self->empty(self)==false){ \
+		self->pop(self); \
+	} \
+} \
+\
 declname make_##declname(void){ \
 	declname temp = { \
 		.push= declname##_push, \
@@ -68,6 +76,7 @@ declname make_##declname(void){ \
 		.top= declname##_top, \
 		.empty= declname##_empty, \
 		.size= declname##_size, \
+		.clear= declname##_clear, \
 		.head=NULL, \
 		.tail=NULL, \
 	}; \
