@@ -18,7 +18,7 @@ struct declname##_node{ \
 \
 struct declname \
 { \
-	declname##_node *root, *back; \
+	declname##_node *head, *tail; \
 	size_t dcnt; \
 	\
 	void  (*push)(declname*,type); \
@@ -36,21 +36,21 @@ bool declname##_empty(const declname*); \
 \
 void declname##_push(declname* self,type d){ \
 	declname##_node *ptr = (declname##_node*)malloc(sizeof(declname##_node)); \
-	ptr->bptr=self->back; \
+	ptr->bptr=self->tail; \
 	ptr->data=d; \
-	self->back=ptr; \
+	self->tail=ptr; \
 	++self->dcnt; \
 } \
 \
 void declname##_pop(declname* self){ \
-	declname##_node* ptr=self->back->bptr; \
-	free(self->back); \
-	self->back=ptr; \
+	declname##_node* ptr=self->tail->bptr; \
+	free(self->tail); \
+	self->tail=ptr; \
 	--self->dcnt; \
 } \
 \
 type declname##_top(const declname* self){ \
-	return self->back->data; \
+	return self->tail->data; \
 } \
 \
 size_t declname##_size(const declname* self){ \
@@ -68,10 +68,10 @@ declname make_##declname(void){ \
 		.top= declname##_top, \
 		.empty= declname##_empty, \
 		.size= declname##_size, \
-		.root=NULL, \
-		.back=NULL, \
+		.head=NULL, \
+		.tail=NULL, \
 	}; \
-	temp.root=(declname##_node*)malloc(sizeof(declname##_node)); \
-	temp.back=temp.root; \
+	temp.head=(declname##_node*)malloc(sizeof(declname##_node)); \
+	temp.tail=temp.head; \
 	return temp; \
 }
