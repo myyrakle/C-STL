@@ -35,6 +35,8 @@ bool declname##_empty(declname*); \
 type declname##_front(declname*); \
 void declname##_clear(declname*); \
 \
+declname make_##declname(void); \
+\
 void declname##_push(declname *self, type d){ \
 	declname##_node *ptr = (declname##_node*)malloc(sizeof(declname##_node)); \
 	ptr->data = d; \
@@ -68,8 +70,6 @@ void declname##_clear(declname* self){ \
 		self->pop(self); \
 	} \
 } \
-\
-declname make_##declname(void); \
 \
 declname make_##declname(void){ \
 	declname tmp = { \
