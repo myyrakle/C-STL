@@ -47,6 +47,7 @@ struct declname \
     \
     /*길이를 가져옴*/ \
     size_t (*get_length)(const declname*); \
+    size_t (*get_size)(const declname*); \
     \
     /*요소 액세스*/ \
     type (*get)(const declname*, size_t); \
@@ -335,6 +336,7 @@ declname make_##declname (void) \
     declname temp = \
     { \
         .get_length= declname##_get_length, \
+        .get_size = declname##_get_length, \
         .get = declname##_get, \
         .get_ptr = declname##_get_ptr, \
         .get_cptr = declname##_get_cptr, \
