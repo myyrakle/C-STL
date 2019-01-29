@@ -25,3 +25,6 @@ decl_stack : 스택. 구현 완료
 decl_queue : 큐. 구현 완료  
 decl_maxheap : 최대 힙. 미구현  
 decl_minheap : 최소 힙. 미구현  
+  
+기여자  
+[sean9892](https://github.com/sean9892)
