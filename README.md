@@ -16,7 +16,7 @@ int_array arr = make_int_array();
 decl_array : 컴파일타임 정적 배열. 구현 완료  
 decl_darray : 런타임 고정배열. 미구현  
 decl_vector : 런타임 가변배열. 구현중  
-decl_list : 연결리스트. 미구현  
+decl_list : 연결리스트. 구현  
 decl_treeset : 트리셋. 미구현  
 decl_treemap : 트리맵. 미구현  
 decl_hashset : 해시셋. 미구현  
