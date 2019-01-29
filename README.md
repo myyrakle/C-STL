@@ -20,6 +20,12 @@ decl_array(int_array, int, 10)
 int_array arr = make_int_array();
 ```
   
+그리고 메서드를 사용할 때는 아래와 같이 합니다.  
+꼭 자기 자신의 주소를 첫번째 인자로 전달해야 합니다.
+```
+arr.find(&arr, 100);
+```
+  
 ***  
   
 매크로의 목록과 현황은 아래와 같습니다.  
