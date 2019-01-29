@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 //매크로로 확장되는, 배열 유사템플릿입니다.
 //정적배열의 래퍼 유사클래스를 생성합니다.
@@ -27,15 +28,15 @@ struct declname##_iterator \
     type (*get)(const declname##_iterator*); \
     type* (*get_ptr)(declname##_iterator*); \
 \
-    /*두 반복자를 비교. 같으면 1, 다르면 0*/ \
-    int (*equals)(const declname##_iterator*, const declname##_iterator*); \
+    /*두 반복자를 비교. 같으면 true*/ \
+    bool (*equals)(const declname##_iterator*, const declname##_iterator*); \
 }; \
 /*유사 메서드 선언*/ \
 void declname##_iterator_next(declname##_iterator*); \
 void declname##_iterator_prev(declname##_iterator*); \
 type declname##_iterator_get(const declname##_iterator*); \
 type* declname##_iterator_get_ptr(declname##_iterator*); \
-int declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
+bool declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
 /*비멤버 make 함수 선언*/ \
 declname##_iterator make_##declname##_iterator(type*); \
 \
@@ -69,8 +70,8 @@ struct declname \
     size_t (*indexof_by)(const declname*, int(*)(const type*)); \
     \
     /*선형탐색으로 포함 여부를 확인*/ \
-    int (*contains)(const declname*, const type); \
-    int (*contains_by)(const declname*, int(*)(const type*)); \
+    bool (*contains)(const declname*, const type); \
+    bool (*contains_by)(const declname*, int(*)(const type*)); \
     \
     /*이진탐색 후 찾은 위치의 반복자를 반환*/ \
     declname##_iterator (*bfind)(const declname*, const type); \
@@ -81,8 +82,8 @@ struct declname \
     size_t (*bindexof_by)(const declname*, const type*, int(*)(const type*, const type*)); \
     \
     /*이진탐색으로 포함 여부를 확인*/ \
-    int (*bcontains)(const declname*, const type); \
-    int (*bcontains_by)(const declname*, const type*, int(*)(const type*, const type*)); \
+    bool (*bcontains)(const declname*, const type); \
+    bool (*bcontains_by)(const declname*, const type*, int(*)(const type*, const type*)); \
     \
     /*해당 값이나 값의 포인터로, 배열을 채움*/ \
     void (*fill)(declname*, const type); \
@@ -108,14 +109,14 @@ declname##_iterator declname##_find(const declname*, const type); \
 declname##_iterator declname##_find_by(const declname*, int(*)(const type*)); \
 size_t declname##_indexof(const declname*, const type); \
 size_t declname##_indexof_by(const declname*, int(*)(const type*)); \
-int declname##_contains(const declname*, const type); \
-int declname##_contains_by(const declname*, int(*)(const type*)); \
+bool declname##_contains(const declname*, const type); \
+bool declname##_contains_by(const declname*, int(*)(const type*)); \
 declname##_iterator declname##_bfind(const declname*, const type); \
 declname##_iterator declname##_bfind_by(const declname*, const type*, int(*)(const type*, const type*)); \
 size_t declname##_bindexof(const declname*, const type); \
 size_t declname##_bindexof_by(const declname*, const type*, int(*)(const type*, const type*)); \
-int declname##_bcontains(const declname*, const type); \
-int declname##_bcontains_by(const declname*, const type*, int(*)(const type*, const type*)); \
+bool declname##_bcontains(const declname*, const type); \
+bool declname##_bcontains_by(const declname*, const type*, int(*)(const type*, const type*)); \
 void declname##_fill(declname*, const type); \
 void declname##_fill_ptr(declname*, const type*); \
 void declname##_sort(declname*); \
@@ -287,7 +288,7 @@ size_t declname##_bindexof_by(const declname* self, const type* key, int(*comp)(
     return length; \
 } \
 \
-int declname##_contains(const declname* self, const type key) \
+bool declname##_contains(const declname* self, const type key) \
 { \
     for(int i = 0; i<length; ++i) \
         if(self->data[i] == key) \
@@ -295,7 +296,7 @@ int declname##_contains(const declname* self, const type key) \
     return 0; \
 } \
 \
-int declname##_contains_by(const declname* self, int(*comp)(const type*)) \
+bool declname##_contains_by(const declname* self, int(*comp)(const type*)) \
 { \
     for(int i = 0; i<length; ++i) \
         if(comp(&self->data[i])) \
@@ -303,7 +304,7 @@ int declname##_contains_by(const declname* self, int(*comp)(const type*)) \
     return 0; \
 } \
 \
-int declname##_bcontains(const declname* self, const type key) \
+bool declname##_bcontains(const declname* self, const type key) \
 { \
     type* p = bsearch(&key, self->data, length, sizeof(type), declname##_comparer); \
     if(self->data<=p && p<= &(self->data[length-1])) \
@@ -311,7 +312,7 @@ int declname##_bcontains(const declname* self, const type key) \
     return 0; \
 } \
 \
-int declname##_bcontains_by(const declname* self, const type* key, int(*comp)(const type*, const type*)) \
+bool declname##_bcontains_by(const declname* self, const type* key, int(*comp)(const type*, const type*)) \
 { \
     int index = declname##_bsearch(self, key, comp); \
     if(0<=index && index<length) \
@@ -387,7 +388,7 @@ type* declname##_iterator_get_ptr(declname##_iterator* self) \
     return self->ptr; \
 } \
 \
-int declname##_iterator_equals(const declname##_iterator* self, const declname##_iterator* other) \
+bool declname##_iterator_equals(const declname##_iterator* self, const declname##_iterator* other) \
 { \
     return self->ptr == other->ptr; \
 } \
