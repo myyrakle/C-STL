@@ -11,7 +11,8 @@ typedef struct declname declname; \
 struct declname##_node; \
 typedef struct declname##_node declname##_node; \
 \
-struct declname##_node{ \
+struct declname##_node \
+{ \
 	type data; \
 	declname##_node *bptr; \
 }; \
@@ -25,7 +26,7 @@ struct declname \
 	void  (*pop)(declname*);  \
 	type  (*top)(const declname*);  \
 	size_t (*size)(const declname*); \
-	bool  (*empty)(const declname*); \
+	bool  (*is_empty)(const declname*); \
 	void (*clear)(declname*); \
 }; \
 \
@@ -33,7 +34,7 @@ void declname##_push(declname*,type); \
 void declname##_pop(declname*); \
 type declname##_top(const declname*); \
 size_t  declname##_size(const declname*); \
-bool declname##_empty(const declname*); \
+bool declname##_is_empty(const declname*); \
 void declname##_clear(declname*); \
 \
 void declname##_push(declname* self,type d){ \
@@ -59,12 +60,12 @@ size_t declname##_size(const declname* self){ \
 	return self->dcnt; \
 } \
 \
-bool declname##_empty(const declname* self){ \
+bool declname##_is_empty(const declname* self){ \
 	return self->dcnt?false:true; \
 } \
 \
 void declname##_clear(declname* self){ \
-	while(self->empty(self)==false){ \
+	while(self->is_empty(self)==false){ \
 		self->pop(self); \
 	} \
 } \
@@ -76,7 +77,7 @@ declname make_##declname(void){ \
 		.push= declname##_push, \
 		.pop= declname##_pop, \
 		.top= declname##_top, \
-		.empty= declname##_empty, \
+		.is_empty= declname##_is_empty, \
 		.size= declname##_size, \
 		.clear= declname##_clear, \
 		.head=NULL, \
