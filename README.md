@@ -35,7 +35,7 @@ arr.find(&arr, 100);
   
 매크로의 목록과 현황은 아래와 같습니다.  
 - decl_array : 컴파일타임 정적 배열. 구현 완료  
-- decl_darray : 런타임 고정배열. 구현중  
+- decl_darray : 런타임 고정배열. 구현   
 - decl_vector : 런타임 가변배열. 구현중  
 - decl_list : 연결리스트. 구현중  
 - decl_treeset : 트리셋. 미구현  
