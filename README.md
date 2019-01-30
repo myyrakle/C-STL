@@ -7,6 +7,11 @@ C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 �
   
 [레퍼런스용 위키로 이동](https://github.com/myyrakle/C-STL/wiki)  
   
+***  
+  
+라이센스는 MIT 라이센스를 적용합니다.  
+막 갖다쓰셔도 됩니다.
+  
 ***
   
 C++의 std::array에 해당하는 매크로는 decl_array입니다.  
