@@ -47,8 +47,7 @@ struct declname \
     type data[length]; \
     \
     /*길이를 가져옴*/ \
-    size_t (*get_length)(const declname*); \
-    size_t (*get_size)(const declname*); \
+    size_t (*size)(const declname*); \
     \
     /*요소 액세스*/ \
     type (*get)(const declname*, size_t); \
@@ -96,9 +95,10 @@ struct declname \
     /*콜백함수를 받아서 범위기반 루프를 돎*/ \
     void (*for_each)(const declname*, void(*)(const type)); \
     void (*for_each_ptr)(declname*, void(*)(type*)); \
+    void (*for_each_cptr)(const declname*, void(*)(const type*)); \
 }; \
 /*유사 메서드 선언*/ \
-size_t declname##_get_length(const declname*); \
+size_t declname##_size(const declname*); \
 type declname##_get(const declname*, size_t); \
 type* declname##_get_ptr(declname*, size_t); \
 const type* declname##_get_cptr(const declname*, size_t); \
@@ -123,12 +123,13 @@ void declname##_sort(declname*); \
 void declname##_sort_by(declname*, int(*)(const type*, const type*)); \
 void declname##_for_each(const declname*, void(*)(const type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
+void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
 /*비멤버 함수*/ \
 declname make_##declname (void); \
 \
 \
 /*배열 메서드 정의.*/ \
-size_t declname##_get_length(const declname* self) \
+size_t declname##_size(const declname* self) \
 { \
     return length; \
 } \
@@ -332,12 +333,17 @@ void declname##_for_each_ptr(declname* self, void(*f)(type*)) \
         f(&self->data[i]); \
 } \
 \
+void declname##_for_each_cptr(const declname* self, void(*f)(const type*)) \
+{ \
+    for(int i =0; i<length; ++i) \
+        f(&self->data[i]); \
+} \
+\
 declname make_##declname (void) \
 { \
-    declname temp = \
+    static declname temp = \
     { \
-        .get_length= declname##_get_length, \
-        .get_size = declname##_get_length, \
+        .size = declname##_size, \
         .get = declname##_get, \
         .get_ptr = declname##_get_ptr, \
         .get_cptr = declname##_get_cptr, \
@@ -361,7 +367,8 @@ declname make_##declname (void) \
         .bcontains= declname##_bcontains, \
         .bcontains_by= declname##_bcontains_by, \
         .for_each= declname##_for_each, \
-        .for_each_ptr= declname##_for_each_ptr \
+        .for_each_ptr= declname##_for_each_ptr, \
+        .for_each_cptr= declname##_for_each_cptr \
     }; \
     return temp; \
 } \

@@ -48,13 +48,13 @@ struct declname \
     const size_t length; \
     \
     void (*clear)(declname*); \
+    void (*realloc)(declname*, size_t); \
     \
     bool (*is_empty)(const declname*); \
     bool (*is_not_empty)(const declname*); \
     \
     /*길이를 가져옴*/ \
-    size_t (*get_length)(const declname*); \
-    size_t (*get_size)(const declname*); \
+    size_t (*size)(const declname*); \
     \
     /*요소 액세스*/ \
     type (*get)(const declname*, size_t); \
@@ -102,12 +102,14 @@ struct declname \
     /*콜백함수를 받아서 범위기반 루프를 돎*/ \
     void (*for_each)(const declname*, void(*)(const type)); \
     void (*for_each_ptr)(declname*, void(*)(type*)); \
+    void (*for_each_cptr)(const declname*, void(*)(const type*)); \
 }; \
 /*유사 메서드 선언*/ \
 void declname##_clear(declname*); \
+void declname##_realloc(declname*, size_t); \
 bool declname##_is_empty(const declname*); \
 bool declname##_is_not_empty(const declname*); \
-size_t declname##_get_length(const declname*); \
+size_t declname##_size(const declname*); \
 type declname##_get(const declname*, size_t); \
 type* declname##_get_ptr(declname*, size_t); \
 const type* declname##_get_cptr(const declname*, size_t); \
@@ -132,8 +134,11 @@ void declname##_sort(declname*); \
 void declname##_sort_by(declname*, int(*)(const type*, const type*)); \
 void declname##_for_each(const declname*, void(*)(const type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
+void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
+\
 /*비멤버 함수*/ \
-declname make_##declname (size_t); \
+declname make_##declname (); \
+declname make_##declname##_with (size_t); \
 \
 \
 /*배열 메서드 정의.*/ \
@@ -142,6 +147,12 @@ void declname##_clear(declname* self) \
     free((type*)self->data); \
     *(const type**)(&self->data) = NULL; \
     *(size_t*)(&self->length) = 0; \
+} \
+\
+void declname##_realloc(declname* self, size_t len) \
+{ \
+    realloc((type*)self->data, sizeof(type)*len); \
+    *(size_t*)(&self->length) = len; \
 } \
 \
 bool declname##_is_empty(const declname* self) \
@@ -154,7 +165,7 @@ bool declname##_is_not_empty(const declname* self) \
    return self->data != NULL; \
 } \
 \
-size_t declname##_get_length(const declname* self) \
+size_t declname##_size(const declname* self) \
 { \
     return self->length; \
 } \
@@ -188,7 +199,7 @@ void declname##_sort_by(declname* self, int(*comp)(const type*, const type*)) \
 \
 declname declname##_clone(const declname* self) \
 { \
-    declname temp = make_##declname(self->length); \
+    declname temp = make_##declname##_with(self->length); \
     for(int i=0;i<self->length;++i) \
         temp.data[i] = self->data[i]; \
     return temp; \
@@ -358,17 +369,23 @@ void declname##_for_each_ptr(declname* self, void(*f)(type*)) \
         f(&self->data[i]); \
 } \
 \
-declname make_##declname (size_t len) \
+void declname##_for_each_cptr(const declname* self, void(*f)(const type*)) \
+{ \
+    for(int i =0; i<self->length; ++i) \
+        f(&self->data[i]); \
+} \
+\
+declname make_##declname () \
 { \
     declname temp = \
     { \
-        .data = malloc(sizeof(type) * len), \
-        .length = len, \
+        .data = NULL, \
+        .length = 0, \
         .clear = declname##_clear, \
+        .realloc = declname##_realloc, \
         .is_empty = declname##_is_empty, \
         .is_not_empty = declname##_is_not_empty, \
-        .get_length= declname##_get_length, \
-        .get_size = declname##_get_length, \
+        .size= declname##_size, \
         .get = declname##_get, \
         .get_ptr = declname##_get_ptr, \
         .get_cptr = declname##_get_cptr, \
@@ -392,7 +409,48 @@ declname make_##declname (size_t len) \
         .bcontains= declname##_bcontains, \
         .bcontains_by= declname##_bcontains_by, \
         .for_each= declname##_for_each, \
-        .for_each_ptr= declname##_for_each_ptr \
+        .for_each_ptr= declname##_for_each_ptr, \
+        .for_each_cptr= declname##_for_each_cptr \
+    }; \
+    return temp; \
+} \
+\
+declname make_##declname##_with (size_t len) \
+{ \
+    declname temp = \
+    { \
+        .data = malloc(sizeof(type) * len), \
+        .length = len, \
+        .clear = declname##_clear, \
+        .realloc = declname##_realloc, \
+        .is_empty = declname##_is_empty, \
+        .is_not_empty = declname##_is_not_empty, \
+        .size= declname##_size, \
+        .get = declname##_get, \
+        .get_ptr = declname##_get_ptr, \
+        .get_cptr = declname##_get_cptr, \
+        .sort= declname##_sort, \
+        .sort_by= declname##_sort_by, \
+        .clone= declname##_clone, \
+        .begin= declname##_begin, \
+        .end= declname##_end, \
+        .fill= declname##_fill, \
+        .fill_ptr= declname##_fill_ptr, \
+        .find= declname##_find, \
+        .find_by= declname##_find_by, \
+        .bfind= declname##_bfind, \
+        .bfind_by= declname##_bfind_by, \
+        .indexof= declname##_indexof, \
+        .indexof_by= declname##_indexof_by, \
+        .bindexof= declname##_bindexof, \
+        .bindexof_by= declname##_bindexof_by, \
+        .contains= declname##_contains, \
+        .contains_by= declname##_contains_by, \
+        .bcontains= declname##_bcontains, \
+        .bcontains_by= declname##_bcontains_by, \
+        .for_each= declname##_for_each, \
+        .for_each_ptr= declname##_for_each_ptr, \
+        .for_each_cptr= declname##_for_each_cptr \
     }; \
     return temp; \
 } \
