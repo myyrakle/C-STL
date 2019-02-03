@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 
 #define VECTOR_ALLOC_DEFAULT 4
 
@@ -52,6 +53,7 @@ struct declname \
     \
     void (*clear)(declname*); \
     void (*realloc)(declname*, size_t); \
+    void (*reserve)(declname*, size_t); \
     \
     void (*push_back)(declname*, type); \
     void (*push_back_ptr)(declname*, const type*); \
@@ -114,6 +116,7 @@ struct declname \
 /*유사 메서드 선언*/ \
 void declname##_clear(declname*); \
 void declname##_realloc(declname*, size_t); \
+void declname##_reserve(declname*, size_t); \
 void declname##_push_back(declname*, type); \
 void declname##_push_back_ptr(declname*, const type*); \
 void declname##_pop_back(declname*); \
@@ -167,24 +170,38 @@ void declname##_realloc(declname* self, size_t len) \
     *(size_t*)(&self->length) = len; \
 } \
 \
-void declname##_alloc(declname* self) \
+void declname##_reserve(declname* self, size_t size) \
 { \
-    if(self->data == NULL) \
-        *(type**)(&self->data) = malloc(sizeof(type)*VECTOR_ALLOC_DEFAULT); \
-    else \
-        realloc((type*)self->data, sizeof(type)*self->capacity*2); \
-    \
+   if(self->capacity < size) \
+        if(self->data == NULL) /*비어있으면 할당*/ \
+            *(type**)(&self->data) = malloc(sizeof(type)*size); \
+        else /*있으면 재할당*/ \
+            realloc((type*)self->data, sizeof(type)*size); \
 } \
 \
+/*메서드 아님*/\
+void declname##_alloc(declname* self) \
+{ \
+    if(self->data == NULL) /*비어있으면 기본사이즈로 할당*/ \
+    { \
+        *(type**)(&self->data) = malloc(sizeof(type)*VECTOR_ALLOC_DEFAULT); \
+        *(size_t*)&self->capacity = VECTOR_ALLOC_DEFAULT; \
+    } \
+    else \
+    { \
+        realloc((type*)self->data, sizeof(type)*self->capacity*2); \
+        *(size_t*)&self->capacity *= 2; \
+    }\
+} \
 void declname##_alloc_reduction(declname* self) \
 { \
     realloc((type*)self->data, self->capacity/2); \
+    *(size_t*)&self->capacity /= 2; \
 } \
 \
 void declname##_push_back(declname* self, type value) \
 { \
-printf("hmm\n");\
-if(self->length == self->capacity) \
+    if(self->length == self->capacity) \
         declname##_alloc(self); \
     self->data[self->length] = value; \
     ++ *(size_t*)(&self->length); \
@@ -223,16 +240,19 @@ size_t declname##_size(const declname* self) \
 \
 type declname##_get(const declname* self, size_t index) \
 { \
+    assert(self->length > index); \
     return self->data[index]; \
 } \
 \
 type* declname##_get_ptr(declname* self, size_t index) \
 { \
+    assert(self->length > index); \
    return (type*)&(self->data[index]); \
 } \
 \
 const type* declname##_get_cptr(const declname* self, size_t index) \
 { \
+    assert(self->length > index); \
    return &(self->data[index]); \
 } \
 \
@@ -243,12 +263,12 @@ int declname##_comparer(const void* lhs, const void* rhs) \
 \
 void declname##_sort(declname* self) \
 { \
-    qsort(self->data, self->length, sizeof(type), declname##_comparer); \
+    qsort(self->data, self->length, sizeof(type), (int (*)(const void *, const void *))declname##_comparer); \
 } \
 \
 void declname##_sort_by(declname* self, int(*comp)(const type*, const type*)) \
 { \
-     qsort(self->data, self->length, sizeof(type), comp); \
+     qsort(self->data, self->length, sizeof(type), (int (*)(const void *, const void *))comp); \
 } \
 \
 declname declname##_clone(const declname* self) \
@@ -383,32 +403,32 @@ bool declname##_contains(const declname* self, const type key) \
 { \
     for(int i = 0; i<self->length; ++i) \
         if(self->data[i] == key) \
-        return 1; \
-    return 0; \
+        return true; \
+    return false; \
 } \
 \
 bool declname##_contains_by(const declname* self, int(*comp)(const type*)) \
 { \
     for(int i = 0; i<self->length; ++i) \
         if(comp(&self->data[i])) \
-            return 1; \
-    return 0; \
+            return true; \
+    return false; \
 } \
 \
 bool declname##_bcontains(const declname* self, const type key) \
 { \
     type* p = bsearch(&key, self->data, self->length, sizeof(type), declname##_comparer); \
     if(self->data<=p && p<= &(self->data[self->length-1])) \
-        return 1; \
-    return 0; \
+        return true; \
+    return false; \
 } \
 \
 bool declname##_bcontains_by(const declname* self, const type* key, int(*comp)(const type*, const type*)) \
 { \
     int index = declname##_bsearch(self, key, comp); \
     if(0<=index && index<self->length) \
-        return 1; \
-    return 0; \
+        return true; \
+    return false; \
 } \
 \
 void declname##_for_each(const declname* self, void(*f)(const type)) \
@@ -436,6 +456,9 @@ declname make_##declname () \
         .data = NULL, \
         .length = 0, \
         .capacity = 0, \
+        .push_back = declname##_push_back, \
+        .push_back_ptr = declname##_push_back_ptr, \
+        .pop_back = declname##_pop_back, \
         .clear = declname##_clear, \
         .realloc = declname##_realloc, \
         .is_empty = declname##_is_empty, \
