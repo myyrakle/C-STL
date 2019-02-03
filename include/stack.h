@@ -19,71 +19,106 @@ struct declname##_node \
 \
 struct declname \
 { \
-	declname##_node *head, *tail; \
-	size_t dcnt; \
+	declname##_node * const head; \
+    declname##_node * const tail; \
+	const size_t length; \
 	\
 	void  (*push)(declname*,type); \
 	void  (*pop)(declname*);  \
 	type  (*top)(const declname*);  \
+    type*  (*top_ptr)(declname*);  \
+    const type*  (*top_cptr)(const declname*);  \
 	size_t (*size)(const declname*); \
 	bool  (*is_empty)(const declname*); \
+	bool  (*is_not_empty)(const declname*); \
 	void (*clear)(declname*); \
 }; \
 \
 void declname##_push(declname*,type); \
 void declname##_pop(declname*); \
 type declname##_top(const declname*); \
+type* declname##_top_ptr(declname*); \
+const type* declname##_top_cptr(const declname*); \
 size_t  declname##_size(const declname*); \
 bool declname##_is_empty(const declname*); \
+bool declname##_is_not_empty(const declname*); \
 void declname##_clear(declname*); \
 \
-void declname##_push(declname* self,type d){ \
+void declname##_push(declname* self,type d) \
+{ \
 	declname##_node *ptr = (declname##_node*)malloc(sizeof(declname##_node)); \
 	ptr->bptr=self->tail; \
 	ptr->data=d; \
-	self->tail=ptr; \
-	++self->dcnt; \
+    (*(declname##_node **)&self->tail) = ptr; \
+	++ *(size_t*)&self->length; \
 } \
 \
-void declname##_pop(declname* self){ \
-	declname##_node* ptr=self->tail->bptr; \
+void declname##_pop(declname* self) \
+{ \
+    assert(self->length!=0); \
+    declname##_node* ptr=self->tail->bptr; \
 	free(self->tail); \
-	self->tail=ptr; \
-	--self->dcnt; \
+    (*(declname##_node **)&self->tail) = ptr; \
+	-- *(size_t*)&self->length; \
 } \
 \
-type declname##_top(const declname* self){ \
-	return self->tail->data; \
+type declname##_top(const declname* self) \
+{ \
+    assert(self->length!=0); \
+    return self->tail->data; \
 } \
 \
-size_t declname##_size(const declname* self){ \
-	return self->dcnt; \
+type* declname##_top_ptr(declname* self) \
+{ \
+    assert(self->length!=0); \
+	return &self->tail->data; \
 } \
 \
-bool declname##_is_empty(const declname* self){ \
-	return self->dcnt?false:true; \
+const type* declname##_top_cptr(const declname* self) \
+{ \
+    assert(self->length!=0); \
+	return &self->tail->data; \
 } \
 \
-void declname##_clear(declname* self){ \
-	while(self->is_empty(self)==false){ \
-		self->pop(self); \
-	} \
+size_t declname##_size(const declname* self) \
+{ \
+	return self->length; \
+} \
+\
+bool declname##_is_empty(const declname* self) \
+{ \
+	return self->length == 0; \
+} \
+\
+bool declname##_is_not_empty(const declname* self) \
+{ \
+	return self->length !=0; \
+} \
+\
+void declname##_clear(declname* self) \
+{ \
+	while(declname##_is_not_empty(self)) \
+		declname##_pop(self); \
 } \
 \
 declname make_##declname(void); \
 \
-declname make_##declname(void){ \
-	declname temp = { \
+declname make_##declname(void) \
+{ \
+	declname temp = \
+    { \
 		.push= declname##_push, \
 		.pop= declname##_pop, \
 		.top= declname##_top, \
+        .top_ptr= declname##_top_ptr, \
+        .top_cptr= declname##_top_cptr, \
 		.is_empty= declname##_is_empty, \
+        .is_not_empty= declname##_is_not_empty, \
 		.size= declname##_size, \
 		.clear= declname##_clear, \
 		.head=NULL, \
 		.tail=NULL, \
+        .length=0 \
 	}; \
-	temp.head=(declname##_node*)malloc(sizeof(declname##_node)); \
-	temp.tail=temp.head; \
 	return temp; \
 }
