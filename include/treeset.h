@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
+//디폴트 트리는 레드블랙 트리
 #define decl_treeset(declname, type) decl_rbtreeset(declname, type)
 
 
@@ -19,6 +20,7 @@ bool declname##_default_comparer(const type* lhs, const type* rhs) \
 decl_rbtreeset_with(declname, type, declname##_default_comparer)
 
 
+//구현
 #define decl_rbtreeset_with(declname, type, comparer) \
 \
 struct declname; \
@@ -99,3 +101,32 @@ declname##_iterator declname##_end(const declname*); \
 void declname##_for_each(const declname*, void(*)(type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
 void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
+\
+inline declname make_##declname(); \
+\
+inline declname make_##declname() \
+{ \
+   declname temp = \
+   { \
+        .root = NULL, \
+        .size = declname##_size, \
+        .is_empty = declname##_is_empty, \
+        .is_not_empty = declname##_is_not_empty, \
+        .clear = declname##_clear, \
+        .insert = declname##_insert, \
+        .insert_ptr = declname##_insert_ptr, \
+        .erase = declname##_erase, \
+        .erase_iter = declname##_erase_iter, \
+        .erase_range = declname##_erase_range, \
+        .contains = declname##_contains, \
+        .contains_ptr = declname##_contains_ptr, \
+        .find = declname##_iterator declname##_find, \
+        .find_ptr = declname##_iterator declname##_find_ptr, \
+        .begin = declname##_iterator declname##_begin, \
+        .end = declname##_iterator declname##_end, \
+        .for_each = declname##_for_each, \
+        .for_each_ptr = declname##_for_each_ptr, \
+        .for_each_cptr = declname##_for_each_cptr \
+   }; \
+    return temp; \
+} \
