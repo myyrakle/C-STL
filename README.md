@@ -26,7 +26,7 @@ C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 �
 - decl_stack : 스택. 구현  
 - decl_queue : 큐. 구현  
 - decl_list : 연결리스트. 구현중  
-- decl_treeset : 트리셋. 미구현  
+- decl_treeset : 트리셋. 구현중  
 - decl_treemap : 트리맵. 미구현  
 - decl_hashset : 해시셋. 미구현  
 - decl_hashmap : 해시맵. 미구현  
