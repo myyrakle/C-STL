@@ -2,6 +2,7 @@
 
 #include<stdlib.h>
 #include<stdbool.h>
+#include<assert.h>
 
 #define decl_stack(declname,type) \
 \
@@ -19,7 +20,6 @@ struct declname##_node \
 \
 struct declname \
 { \
-	declname##_node * const head; \
     declname##_node * const tail; \
 	const size_t length; \
 	\
@@ -116,7 +116,6 @@ declname make_##declname(void) \
         .is_not_empty= declname##_is_not_empty, \
 		.size= declname##_size, \
 		.clear= declname##_clear, \
-		.head=NULL, \
 		.tail=NULL, \
         .length=0 \
 	}; \
