@@ -26,8 +26,8 @@ struct declname \
 	void  (*push)(declname*,type); \
 	void  (*pop)(declname*);  \
 	type  (*top)(const declname*);  \
-    type*  (*top_ptr)(declname*);  \
-    const type*  (*top_cptr)(const declname*);  \
+        type*  (*top_ptr)(declname*);  \
+        const type*  (*top_cptr)(const declname*);  \
 	size_t (*size)(const declname*); \
 	bool  (*is_empty)(const declname*); \
 	bool  (*is_not_empty)(const declname*); \
@@ -49,34 +49,34 @@ void declname##_push(declname* self,type d) \
 	declname##_node *ptr = (declname##_node*)malloc(sizeof(declname##_node)); \
 	ptr->bptr=self->tail; \
 	ptr->data=d; \
-    (*(declname##_node **)&self->tail) = ptr; \
+        (*(declname##_node **)&self->tail) = ptr; \
 	++ *(size_t*)&self->length; \
 } \
 \
 void declname##_pop(declname* self) \
 { \
-    assert(self->length!=0); \
-    declname##_node* ptr=self->tail->bptr; \
+        assert(self->length!=0); \
+        declname##_node* ptr=self->tail->bptr; \
 	free(self->tail); \
-    (*(declname##_node **)&self->tail) = ptr; \
+        (*(declname##_node **)&self->tail) = ptr; \
 	-- *(size_t*)&self->length; \
 } \
 \
 type declname##_top(const declname* self) \
 { \
-    assert(self->length!=0); \
-    return self->tail->data; \
+        assert(self->length!=0); \
+        return self->tail->data; \
 } \
 \
 type* declname##_top_ptr(declname* self) \
 { \
-    assert(self->length!=0); \
+        assert(self->length!=0); \
 	return &self->tail->data; \
 } \
 \
 const type* declname##_top_cptr(const declname* self) \
 { \
-    assert(self->length!=0); \
+        assert(self->length!=0); \
 	return &self->tail->data; \
 } \
 \
@@ -106,7 +106,7 @@ declname make_##declname(void); \
 declname make_##declname(void) \
 { \
 	declname temp = \
-    { \
+        { \
 		.push= declname##_push, \
 		.pop= declname##_pop, \
 		.top= declname##_top, \
