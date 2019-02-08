@@ -110,14 +110,14 @@ declname make_##declname(void) \
 		.push= declname##_push, \
 		.pop= declname##_pop, \
 		.top= declname##_top, \
-        .top_ptr= declname##_top_ptr, \
-        .top_cptr= declname##_top_cptr, \
+       	        .top_ptr= declname##_top_ptr, \
+                .top_cptr= declname##_top_cptr, \
 		.is_empty= declname##_is_empty, \
-        .is_not_empty= declname##_is_not_empty, \
+                .is_not_empty= declname##_is_not_empty, \
 		.size= declname##_size, \
 		.clear= declname##_clear, \
 		.tail=NULL, \
-        .length=0 \
+                .length=0 \
 	}; \
 	return temp; \
 }
