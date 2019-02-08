@@ -1,11 +1,10 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
 
 //매크로로 확장되는, 연결리스트 유사템플릿입니다.
 //연결리스트의 유사클래스를 생성합니다.
-#define decl_list(declname,type) \
+#define decl_list(declname, type) \
 \
 /*리스트 유사클래스 전방선언이오*/ \
 struct declname; \
@@ -32,7 +31,9 @@ struct declname##_iterator \
 	/*값이나 그 포인터를 가져오는 것이오*/ \
 	type (*get)(const declname##_iterator*); \
 	type* (*get_ptr)(declname##_iterator*); \
+    const type* (*get_cptr)(const declname##_iterator*); \
 	\
+    void (*delete_self)(declname##_iterator*); \
 	/*두 반복자를 비교할진저!*/\
 	bool (*equals)(const declname##_iterator*, const declname##_iterator*); \
 }; \
@@ -41,6 +42,8 @@ void declname##_iterator_next(declname##_iterator*); \
 void declname##_iterator_prev(declname##_iterator*); \
 type declname##_iterator_get(const declname##_iterator*); \
 type* declname##_iterator_get_ptr(declname##_iterator*); \
+const type* declname##_iterator_get_cptr(const declname##_iterator*); \
+void declname##_iterator_delete_self(declname##_iterator*); \
 bool declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
 /*비멤버 make 함수요*/ declname##_iterator make_##declname##_iterator(declname##_node*); \
 \
@@ -66,13 +69,14 @@ declname##_node* declname##_new_node(declname##_node* prev, const type* v, decln
 /*실체화되는 연결리스트 유사클래스요*/ \
 struct declname \
 { \
-	declname##_node* head; \
-	declname##_node* tail; \
-	size_t length; \
+	declname##_node* const head; \
+	declname##_node* const tail; \
+	const size_t length; \
 	\
 	\
 	/*객체를 깨끗이 비운다오*/ \
 	void (*clear)(declname*); \
+    size_t (*size)(const declname*); \
 	\
 	/*비어있는지 여부를 확인하오*/ \
 	bool (*is_empty)(const declname*); \
@@ -81,12 +85,14 @@ struct declname \
 	/*앞에서 접근을 하오*/ \
 	type (*front)(const declname*); \
 	type* (*front_ptr)(declname*); \
+    const type* (*front_cptr)(const declname*); \
 	void (*push_front)(declname*, type); \
 	void (*pop_front)(declname*); \
 	\
 	/*뒤에서 접근을 하오*/ \
 	type (*back)(const declname*); \
 	type* (*back_ptr)(declname*); \
+	const type* (*back_cptr)(const declname*); \
 	void (*push_back)(declname*, type); \
 	void (*pop_back)(declname*); \
 	\
@@ -104,10 +110,7 @@ struct declname \
 	void (*remove)(declname*, type); \
 	void (*remove_by)(declname*, bool(*)(const type*)); \
 	\
-	/*길이를 가져오오*/ \
-	size_t (*get_length)(const declname*); \
-	\
-	/*정렬용이오*/ \ 
+	/*정렬용이오*/ \
 	void (*sort)(declname*); \
 	void (*sort_by)(declname*, int (*)(const type*, const type*)); \
 	\
@@ -126,6 +129,7 @@ struct declname \
 	/*콜백함수를 받아서 범위기반 루프를 도는 것이오*/ \
 	void (*for_each)(const declname*, void(*)(type)); \
 	void (*for_each_ptr)(declname*, void(*)(type*)); \
+    void (*for_each_cptr)(const declname*, void(*)(const type*)); \
 }; \
 /*메서드 선언이오*/ \
 void declname##_clear(declname*); \
@@ -133,10 +137,12 @@ bool declname##_is_empty(const declname*); \
 bool is_not_empty(const declname*); \
 type declname##_front(const declname*); \
 type* declname##_front_ptr(declname*); \
+const type* declname##_front_cptr(const declname*); \
 void declname##_push_front(declname*, type); \
 void declname##_pop_front(declname*); \
 type declname##_back(const declname*); \
 type* declname##_back_ptr(declname*); \
+const type* declname##_back_cptr(const declname*); \
 void declname##_push_back(declname*, type); \
 void declname##_pop_back(declname*); \
 declname##_iterator declname##_insert(declname*, declname##_iterator, const type*); \
@@ -145,7 +151,7 @@ void declname##_erase(declname*, declname##_iterator); \
 void declname##_erase_range(declname*, declname##_iterator, declname##_iterator); \
 void declname##_remove(declname*, type); \
 void declname##_remove_by(declname*, bool(*)(const type*)); \
-size_t declname##_get_length(const declname*); \
+size_t declname##_size(const declname*); \
 void declname##_sort(declname*); \
 void declname##_sort_by(declname*, int (*)(const type*, const type*)); \
 declname##_iterator declname##_begin(declname*); \
@@ -156,6 +162,7 @@ bool declname##_contains(const declname*, const type); \
 bool declname##_contains_by(const declname*, bool(*)(const type*)); \
 void declname##_for_each(const declname*, void(*)(type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
+void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
 /*비멤버 함수요*/\
 declname make_##declname (void); \
 \
@@ -164,7 +171,7 @@ declname make_##declname (void); \
 void declname##_clear(declname* self)\
 { \
 	while(self->head != NULL) \
-		self->pop_front(self); \
+		declname##_pop_front(self); \
 } \
 \
 bool declname##_is_empty(const declname* self) \
@@ -187,14 +194,19 @@ type* declname##_front_ptr(declname* self) \
 	return &(self->head->value); \
 } \
 \
+const type* declname##_front_cptr(const declname* self) \
+{ \
+	return &(self->head->value); \
+} \
+\
 void declname##_push_front(declname* self, type v) \
 { \
-    self->head = declname##_new_node(NULL,&v,self->head); \
-    self->length++; \
+    *(declname##_node**)&self->head = declname##_new_node(NULL,&v,self->head); \
+    ++ *(size_t*)&self->length; \
      if(self->head->next !=NULL) \
         self->tail->next->prev = self->tail; \
     if(self->tail == NULL) /*꼬리가 비어있으면 머리가 곧 꼬리*/ \
-        self->tail = self->head; \
+        *(declname##_node**)&self->tail = self->head; \
 } \
 \
 void declname##_pop_front(declname* self) \
@@ -203,9 +215,9 @@ void declname##_pop_front(declname* self) \
 	{ \
 		declname##_node* temp = self->head; \
 		if(self->head->next != NULL) \
-			self->head = self->head->next; \
+			*(declname##_node**)&self->head = self->head->next; \
 		free(temp); \
-		self->length--; \
+		-- *(size_t*)&self->length; \
 	} \
 } \
 \
@@ -213,20 +225,23 @@ type declname##_back(const declname* self) \
 { \
 	return self->tail->value; \
 } \
-\
 type* declname##_back_ptr(declname* self) \
+{ \
+	return &(self->tail->value); \
+} \
+const type* declname##_back_cptr(const declname* self) \
 { \
 	return &(self->tail->value); \
 } \
 \
 void declname##_push_back(declname* self, type v) \
 { \
-    self->tail = declname##_new_node(self->tail, &v, NULL); \
+    *(declname##_node**)&self->tail = declname##_new_node(self->tail, &v, NULL); \
     if(self->tail->prev !=NULL) \
         self->tail->prev->next = self->tail; \
-	self->length++; \
+	++ *(size_t*)&self->length; \
     if(self->head == NULL) /*머리가 비어있으면 꼬리가 머리*/ \
-        self->head=self->tail; \
+        *(declname##_node**)&self->head = self->tail; \
 } \
 \
 void declname##_pop_back(declname* self) \
@@ -235,9 +250,12 @@ void declname##_pop_back(declname* self) \
 	{ \
 		declname##_node* temp = self->tail; \
 		if(self->tail->prev != NULL) \
-			self->tail = self->tail->next; \
+        { \
+            *(declname##_node**)&self->tail = self->tail->prev; \
+            self->tail->next = NULL; \
+        } \
 		free(temp); \
-		self->length--; \
+		-- *(size_t*)& self->length; \
 	} \
 } \
 \
@@ -249,7 +267,7 @@ declname##_iterator declname##_insert(declname* self, declname##_iterator pos, c
 		return make_##declname##_iterator(pos.ptr); \
 	} \
 	else \
-		return self->end(self); \
+		return declname##_end(self); \
 } \
 \
 void declname##_drain_list(declname* self, declname##_iterator pos, declname* other) \
@@ -259,7 +277,7 @@ void declname##_drain_list(declname* self, declname##_iterator pos, declname* ot
 \
 void declname##_erase(declname* self, declname##_iterator pos) \
 { \
-	\
+	declname##_iterator_delete_self(&pos); \
 } \
 \
 void declname##_erase_range(declname* self, declname##_iterator begin, declname##_iterator end) \
@@ -277,7 +295,7 @@ void declname##_remove_by(declname* self, bool(*eq)(const type*)) \
 	\
 } \
 \
-size_t declname##_get_length(const declname* self) \
+size_t declname##_size(const declname* self) \
 { \
 	return self->length; \
 } \
@@ -303,7 +321,7 @@ declname##_iterator declname##_end(declname* self) \
 { \
 	declname##_iterator it = \
 		make_##declname##_iterator(self->tail); \
-	it.next(&it); \
+	declname##_iterator_next(&it); \
 	return it; \
 } \
 \
@@ -380,6 +398,16 @@ void declname##_for_each_ptr(declname* self, void(*f)(type*)) \
 	} \
 } \
 \
+void declname##_for_each_cptr(const declname* self, void(*f)(const type*)) \
+{ \
+	const declname##_node* current_pos = self->head; \
+	while(current_pos!=NULL) \
+	{ \
+		f(& current_pos->value); \
+		current_pos = current_pos->next; \
+	} \
+} \
+\
 \
 declname make_##declname (void) \
 { \
@@ -393,14 +421,16 @@ declname make_##declname (void) \
 		.is_not_empty = declname##_is_not_empty, \
 		.front = declname##_front, \
 		.front_ptr = declname##_front_ptr, \
+		.front_cptr = declname##_front_cptr, \
 		.push_front = declname##_push_front, \
 		.pop_front = declname##_pop_front, \
 		.back = declname##_back, \
 		.back_ptr = declname##_back_ptr, \
+		.back_cptr = declname##_back_cptr, \
 		.push_back = declname##_push_back, \
 		.pop_back = declname##_pop_back, \
 		.insert = declname##_insert, \
-		.get_length = declname##_get_length, \
+		.size = declname##_size, \
 		.sort = declname##_sort, \
 		.sort_by = declname##_sort_by, \
 		.begin = declname##_begin, \
@@ -410,7 +440,8 @@ declname make_##declname (void) \
 		.contains = declname##_contains, \
 		.contains_by = declname##_contains_by, \
 		.for_each = declname##_for_each, \
-		.for_each_ptr = declname##_for_each_ptr \
+		.for_each_ptr = declname##_for_each_ptr, \
+		.for_each_cptr = declname##_for_each_cptr \
 	}; \
 	return temp; \
 } \
@@ -419,23 +450,47 @@ declname make_##declname (void) \
 /*이제부터 반복자 메서드 정의요*/\
 void declname##_iterator_next(declname##_iterator* self) \
 { \
-	if(self->ptr->next!=NULL) \
+    assert(self->ptr!=NULL); \
+    if(self->ptr->next!=NULL) \
 		self->ptr = self->ptr->next; \
 } \
 \
 void declname##_iterator_prev(declname##_iterator* self) \
 { \
+    assert(self->ptr!=NULL); \
 	if(self->ptr->prev!=NULL) \
 		self->ptr = self->ptr->prev; \
 } \
 type declname##_iterator_get(const declname##_iterator* self) \
 { \
-	return self->ptr->value; \
+    assert(self->ptr!=NULL); \
+    return self->ptr->value; \
 } \
-\
 type* declname##_iterator_get_ptr(declname##_iterator* self) \
 { \
+    assert(self->ptr!=NULL); \
+    return &(self->ptr->value); \
+} \
+const type* declname##_iterator_get_cptr(const declname##_iterator* self) \
+{ \
+    assert(self->ptr!=NULL); \
 	return &(self->ptr->value); \
+} \
+\
+void declname##_iterator_delete_self(declname##_iterator* self) \
+{ \
+    assert(self->ptr!=NULL); \
+    declname##_node* temp_prev = self->ptr->prev; \
+    declname##_node* temp_next = self->ptr->next; \
+    \
+    free(self->ptr); \
+    self->ptr = temp_next; \
+    \
+    if(temp_prev!=NULL) \
+        temp_prev->next = temp_next; \
+    if(temp_next!=NULL) \
+        temp_next->prev = temp_prev; \
+    \
 } \
 \
 bool declname##_iterator_equals(const declname##_iterator* self, const declname##_iterator* other) \
@@ -447,13 +502,20 @@ declname##_iterator make_##declname##_iterator(declname##_node* p) \
 { \
 	static declname##_iterator it = \
 	{ \
-		NULL, \
-		declname##_iterator_next, \
-		declname##_iterator_prev, \
-		declname##_iterator_get, \
-		declname##_iterator_get_ptr, \
-		declname##_iterator_equals \
+		.ptr = NULL, \
+		.next = declname##_iterator_next, \
+		.prev = declname##_iterator_prev, \
+		.get = declname##_iterator_get, \
+		.get_ptr = declname##_iterator_get_ptr, \
+		.get_cptr = declname##_iterator_get_cptr, \
+        .equals = declname##_iterator_equals, \
+        .delete_self = declname##_iterator_delete_self \
 	}; \
 	it.ptr = p; \
 	return it; \
 }
+
+
+#define decl_forward_list(declname, type) false
+
+#define decl_circle_list(declname, type) false
