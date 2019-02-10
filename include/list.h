@@ -33,8 +33,10 @@ struct declname##_iterator \
 	type* (*get_ptr)(declname##_iterator*); \
     const type* (*get_cptr)(const declname##_iterator*); \
 	\
-    void (*delete_self)(declname##_iterator*); \
-	/*두 반복자를 비교할진저!*/\
+    /*해당 반복자 위치의 노드를 삭제합니다.*/ \
+    void (*pop)(declname##_iterator*); \
+    \
+    /*두 반복자를 비교할진저!*/ \
 	bool (*equals)(const declname##_iterator*, const declname##_iterator*); \
 }; \
 /*나는 이것을 메서드의 [선언]이라 칭하겠노라.*/ \
@@ -43,7 +45,7 @@ void declname##_iterator_prev(declname##_iterator*); \
 type declname##_iterator_get(const declname##_iterator*); \
 type* declname##_iterator_get_ptr(declname##_iterator*); \
 const type* declname##_iterator_get_cptr(const declname##_iterator*); \
-void declname##_iterator_delete_self(declname##_iterator*); \
+void declname##_iterator_pop(declname##_iterator*); \
 bool declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
 /*비멤버 make 함수요*/ declname##_iterator make_##declname##_iterator(declname##_node*); \
 \
@@ -170,32 +172,41 @@ declname make_##declname (void); \
 /*이것이 바로... [정의]란 것이다...*/\
 void declname##_clear(declname* self)\
 { \
+    assert(self!=NULL); \
 	while(self->head != NULL) \
 		declname##_pop_front(self); \
 } \
 \
 bool declname##_is_empty(const declname* self) \
 { \
+    assert(self!=NULL); \
 	return self->head == NULL; \
 } \
 \
 bool declname##_is_not_empty(const declname* self) \
 { \
+    assert(self!=NULL); \
 	return self->head != NULL; \
 } \
 \
 type declname##_front(const declname* self) \
 { \
+    assert(self!=NULL); \
+    assert(self->head!=NULL); \
 	return self->head->value; \
 } \
 \
 type* declname##_front_ptr(declname* self) \
 { \
+    assert(self!=NULL); \
+    assert(self->head!=NULL); \
 	return &(self->head->value); \
 } \
 \
 const type* declname##_front_cptr(const declname* self) \
 { \
+    assert(self!=NULL); \
+    assert(self->head!=NULL); \
 	return &(self->head->value); \
 } \
 \
@@ -211,31 +222,38 @@ void declname##_push_front(declname* self, type v) \
 \
 void declname##_pop_front(declname* self) \
 { \
-	if(self->head!=NULL) \
-	{ \
-		declname##_node* temp = self->head; \
-		if(self->head->next != NULL) \
-			*(declname##_node**)&self->head = self->head->next; \
-		free(temp); \
-		-- *(size_t*)&self->length; \
-	} \
+    assert(self!=NULL); \
+    assert(self->head!=NULL); \
+    \
+    declname##_node* temp = self->head; \
+    if(self->head->next != NULL) \
+        *(declname##_node**)&self->head = self->head->next; \
+    free(temp); \
+    -- *(size_t*)&self->length; \
 } \
 \
 type declname##_back(const declname* self) \
 { \
-	return self->tail->value; \
+    assert(self!=NULL); \
+    assert(self->tail != NULL); \
+    return self->tail->value; \
 } \
 type* declname##_back_ptr(declname* self) \
 { \
-	return &(self->tail->value); \
+    assert(self!=NULL); \
+    assert(self->tail != NULL); \
+    return &(self->tail->value); \
 } \
 const type* declname##_back_cptr(const declname* self) \
 { \
+    assert(self!=NULL); \
+    assert(self->tail != NULL); \
 	return &(self->tail->value); \
 } \
 \
 void declname##_push_back(declname* self, type v) \
 { \
+    assert(self!=NULL); \
     *(declname##_node**)&self->tail = declname##_new_node(self->tail, &v, NULL); \
     if(self->tail->prev !=NULL) \
         self->tail->prev->next = self->tail; \
@@ -246,6 +264,7 @@ void declname##_push_back(declname* self, type v) \
 \
 void declname##_pop_back(declname* self) \
 { \
+    assert(self!=NULL); \
 	if(self->tail!=NULL) \
 	{ \
 		declname##_node* temp = self->tail; \
@@ -261,6 +280,7 @@ void declname##_pop_back(declname* self) \
 \
 declname##_iterator declname##_insert(declname* self, declname##_iterator pos, const type*v) \
 { \
+    assert(pos.ptr!=NULL); \
 	if(pos.ptr!=NULL) \
 	{ \
 		pos.ptr = declname##_new_node(pos.ptr->prev, v, pos.ptr); \
@@ -277,12 +297,14 @@ void declname##_drain_list(declname* self, declname##_iterator pos, declname* ot
 \
 void declname##_erase(declname* self, declname##_iterator pos) \
 { \
-	declname##_iterator_delete_self(&pos); \
+    assert(pos.ptr!=NULL); \
+	declname##_iterator_pop(&pos); \
 } \
 \
 void declname##_erase_range(declname* self, declname##_iterator begin, declname##_iterator end) \
 { \
-	\
+	assert(begin.ptr!=NULL); \
+	assert(end.ptr!=NULL); \
 } \
 \
 void declname##_remove(declname* self, type v) \
@@ -477,7 +499,7 @@ const type* declname##_iterator_get_cptr(const declname##_iterator* self) \
 	return &(self->ptr->value); \
 } \
 \
-void declname##_iterator_delete_self(declname##_iterator* self) \
+void declname##_iterator_pop(declname##_iterator* self) \
 { \
     assert(self->ptr!=NULL); \
     declname##_node* temp_prev = self->ptr->prev; \
@@ -509,7 +531,7 @@ declname##_iterator make_##declname##_iterator(declname##_node* p) \
 		.get_ptr = declname##_iterator_get_ptr, \
 		.get_cptr = declname##_iterator_get_cptr, \
         .equals = declname##_iterator_equals, \
-        .delete_self = declname##_iterator_delete_self \
+        .pop = declname##_iterator_pop \
 	}; \
 	it.ptr = p; \
 	return it; \
