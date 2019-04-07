@@ -111,9 +111,9 @@ void declname##_clear(declname* self) \
 		declname##_pop(self); \
 } \
 \
-declname make_##declname(void); \
+declname new_##declname(void); \
 \
-declname make_##declname(void) \
+declname new_##declname(void) \
 { \
 	declname temp = \
 	{ \
