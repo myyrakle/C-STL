@@ -37,8 +37,8 @@ void declname##_iterator_prev(declname##_iterator*); \
 type declname##_iterator_get(const declname##_iterator*); \
 type* declname##_iterator_get_ptr(declname##_iterator*); \
 bool declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
-/*비멤버 make 함수 선언*/ \
-declname##_iterator make_##declname##_iterator(type*); \
+/*비멤버 new 함수 선언*/ \
+declname##_iterator new_##declname##_iterator(type*); \
 \
 \
 /*실체화되는 배열 유사클래스*/ \
@@ -125,7 +125,7 @@ void declname##_for_each(const declname*, void(*)(const type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
 void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
 /*비멤버 함수*/ \
-declname make_##declname (void); \
+declname new_##declname (void); \
 \
 \
 /*배열 메서드 정의.*/ \
@@ -158,12 +158,12 @@ void declname##_sort(declname* self) \
 \
 void declname##_sort_by(declname* self, int(*comp)(const type*, const type*)) \
 { \
-     qsort(self->data, length, sizeof(type), comp); \
+     qsort(self->data, length, sizeof(type), (int(*)(const void*, const void*))comp); \
 } \
 \
 declname declname##_clone(const declname* self) \
 { \
-    declname temp = make_##declname(); \
+    declname temp = new_##declname(); \
     for(int i=0;i<length;++i) \
         temp.data[i] = self->data[i]; \
     return temp; \
@@ -172,14 +172,14 @@ declname declname##_clone(const declname* self) \
 declname##_iterator declname##_begin(declname* self) \
 { \
     declname##_iterator it = \
-    make_##declname##_iterator(self->data); \
+    new_##declname##_iterator(self->data); \
     return it; \
 } \
 \
 declname##_iterator declname##_end(declname* self) \
 { \
     declname##_iterator it = \
-    make_##declname##_iterator(self->data+length); \
+    new_##declname##_iterator(self->data+length); \
     return it; \
 } \
 \
@@ -199,7 +199,7 @@ declname##_iterator declname##_find(const declname* self, const type key) \
 { \
     for(int i = 0; i<length; ++i)\
         if(self->data[i] == key) \
-            return make_##declname##_iterator((type*)&(self->data[i])); \
+            return new_##declname##_iterator((type*)&(self->data[i])); \
     \
     return self->end((declname*)&self); \
 } \
@@ -208,7 +208,7 @@ declname##_iterator declname##_find_by(const declname* self, int(*comp)(const ty
 { \
     for(int i = 0; i<length; ++i)\
         if(comp(&self->data[i])) \
-            return make_##declname##_iterator((type*)&(self->data[i])); \
+            return new_##declname##_iterator((type*)&(self->data[i])); \
 \
     return self->end((declname*)&self); \
 } \
@@ -217,7 +217,7 @@ declname##_iterator declname##_bfind(const declname* self, const type key) \
 { \
     type* p = bsearch(&key, self->data, length, sizeof(type), declname##_comparer); \
     if(self->data<=p && p<= &(self->data[length-1])) \
-        return make_##declname##_iterator(p); \
+        return new_##declname##_iterator(p); \
     return self->end((declname*)&self); \
 } \
 \
@@ -253,7 +253,7 @@ declname##_iterator declname##_bfind_by(const declname* self, const type* key, i
 { \
     int index = declname##_bsearch(self, key, comp); \
     if(0<=index && index<length) \
-        return make_##declname##_iterator((type*)&self->data[index]); \
+        return new_##declname##_iterator((type*)&self->data[index]); \
     return self->end((declname*)&self); \
 } \
 \
@@ -339,7 +339,7 @@ void declname##_for_each_cptr(const declname* self, void(*f)(const type*)) \
         f(&self->data[i]); \
 } \
 \
-declname make_##declname (void) \
+declname new_##declname (void) \
 { \
     static declname temp = \
     { \
@@ -400,7 +400,7 @@ bool declname##_iterator_equals(const declname##_iterator* self, const declname#
     return self->ptr == other->ptr; \
 } \
 \
-declname##_iterator make_##declname##_iterator(type* p) \
+declname##_iterator new_##declname##_iterator(type* p) \
 { \
     declname##_iterator it = \
     { \
@@ -412,4 +412,4 @@ declname##_iterator make_##declname##_iterator(type* p) \
         declname##_iterator_equals \
     }; \
     return it; \
-} \
+} 
