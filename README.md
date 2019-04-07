@@ -44,7 +44,7 @@ C++의 std::array에 해당하는 매크로는 decl_array입니다.
 decl_array(IntArray, int, 10)
 ```
   
-그리고 객체의 생성은 아래와 같이 합니다. 꼭 make를 쓰지 않아도 되지만 추천하지 않습니다.  
+그리고 객체의 생성은 아래와 같이 합니다. 꼭 new를 사용해야 하는 건 아니지만, 추천하지 않습니다.  
 ```
 IntArray arr = new_IntArray();
 ```
