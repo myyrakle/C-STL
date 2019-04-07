@@ -55,7 +55,8 @@ IntArray arr = new_IntArray();
 arr.find(&arr, 100);
 ```
   
-
+아래는 예시 이미지입니다.  
+![ArrayTest](./image/ArraySimpleTest.png)
 ***  
   
 ## 기여자  
