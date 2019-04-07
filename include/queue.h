@@ -45,7 +45,7 @@ type* declname##_front_ptr(declname*); \
 const type* declname##_front_cptr(const declname*); \
 void declname##_clear(declname*); \
 \
-declname make_##declname(void); \
+declname new_##declname(void); \
 \
 void declname##_push(declname *self, type value) \
 { \
@@ -113,7 +113,7 @@ void declname##_clear(declname* self) \
 	self->tail = NULL; \
 } \
 \
-declname make_##declname(void){ \
+declname new_##declname(void){ \
 	static declname temp = \
 	{ \
 		.length=0, \
