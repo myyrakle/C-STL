@@ -44,16 +44,19 @@ C++의 std::array에 해당하는 매크로는 decl_array입니다.
 decl_array(IntArray, int, 10)
 ```
   
+  
 그리고 객체의 생성은 아래와 같이 합니다. 꼭 new를 사용해야 하는 건 아니지만, 추천하지 않습니다.  
 ```
 IntArray arr = new_IntArray();
 ```
+  
   
 그리고 메서드를 사용할 때는 아래와 같이 합니다.  
 꼭 자기 자신의 주소를 첫번째 인자로 전달해야 합니다.
 ```
 arr.find(&arr, 100);
 ```
+  
   
 아래는 예시 이미지입니다.  
 ![ArrayTest](./image/ArraySimpleTest.png)
