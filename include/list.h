@@ -541,9 +541,4 @@ declname##_iterator new_##declname##_iterator(declname##_node* p) \
 	return it; \
 }
 
-
-#define decl_forward_list(declname, type) false
-
-#define decl_circle_list(declname, type) false
-
 #endif //C_TEST_LIST_H
