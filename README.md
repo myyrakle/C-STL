@@ -1,6 +1,6 @@
 # C-STL  
   
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)]
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/myyrakle/C-STL/blob/master/LICENSE)
   
 ## 소개
 C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 흉내낸 라이브러리입니다.  
