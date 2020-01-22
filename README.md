@@ -1,5 +1,7 @@
 # C-STL  
   
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)]
+  
 ## 소개
 C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 흉내낸 라이브러리입니다.  
 멤버-함수포인터를 사용하여 OOP의 형식을 가집니다.  
