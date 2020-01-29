@@ -19,8 +19,10 @@ int main()
     list.push_back(&list, 5);
 
     IntList_iterator it = list.begin(&list);
-    //it.next(&it);
-    list.erase(&list, &it);
+    IntList_iterator it2 = list.begin(&list);
+    it2.next(&it2); it2.next(&it2);
+
+    list.erase_range(&list, &it, &it2);
     //list.erase(&list, &it);
 
     list.for_each(&list, print);

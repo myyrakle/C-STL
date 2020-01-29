@@ -70,7 +70,7 @@ struct declname \
   \
   /*객체를 깨끗이 비운다오*/ \
   void (*clear)(declname*); \
-    size_t (*size)(const declname*); \
+  size_t (*size)(const declname*); \
   \
   /*비어있는지 여부를 확인하오*/ \
   bool (*is_empty)(const declname*); \
@@ -88,7 +88,7 @@ struct declname \
   \
   /*반복자를 받아서 그 뒤를 삭제*/ \
   declname##_iterator (*erase_after)(declname*, declname##_iterator*); \
-  void (*erase_range)(declname*, declname##_iterator*, declname##_iterator*); \
+  declname##_iterator (*erase_range)(declname*, declname##_iterator*, declname##_iterator*); \
   \
   /*값에 대응하는 노드 삭제*/ \
   void (*remove)(declname*, type); \
@@ -122,7 +122,7 @@ void declname##_push_front(declname*, type); \
 void declname##_pop_front(declname*); \
 declname##_iterator declname##_insert_after(declname*, declname##_iterator*, const type*); \
 declname##_iterator declname##_erase_after(declname*, declname##_iterator*); \
-void declname##_erase_range(declname*, declname##_iterator*, declname##_iterator*); \
+declname##_iterator declname##_erase_range(declname*, declname##_iterator*, declname##_iterator*); \
 void declname##_remove(declname*, type); \
 void declname##_remove_by(declname*, bool(*)(const type*)); \
 size_t declname##_size(const declname*); \
@@ -221,7 +221,7 @@ declname##_iterator declname##_erase_after(declname* self, declname##_iterator* 
     return new_##declname##_iterator(after->next); \
 } \
 \
-void declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
+declname##_iterator declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
 { \
   assert(begin->ptr!=NULL); \
   assert(end->ptr!=NULL); \
@@ -382,6 +382,7 @@ declname new_##declname (void) \
     .pop_front = declname##_pop_front, \
     .insert_after = declname##_insert_after, \
     .erase_after = declname##_erase_after, \
+    .erase_range = declname##_erase_range, \
     .remove = declname##_remove, \
     .remove_by = declname##_remove_by, \
     .size = declname##_size, \

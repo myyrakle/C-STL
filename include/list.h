@@ -306,10 +306,10 @@ declname##_iterator declname##_erase_range(declname* self, declname##_iterator* 
 { \
 	assert(begin->ptr!=NULL); \
 	declname##_node* before = begin->ptr->prev; \
-	declname##_node* after = end; \
+	declname##_node* after = end->ptr; \
 	\
 	if(before!=NULL) \
-		before->next = end; \
+		before->next = after; \
 	else \
 		*(declname##_node**)&self->head = after; \
 	if(after!=NULL) \
@@ -323,7 +323,7 @@ declname##_iterator declname##_erase_range(declname* self, declname##_iterator* 
 		declname##_iterator_next(begin); \
 	} \
 	\
-	return end; /*??*/ \
+	return new_##declname##_iterator(after); \
 } \
 \
 void declname##_remove(declname* self, type v) \
@@ -462,6 +462,7 @@ declname new_##declname (void) \
 		.pop_back = declname##_pop_back, \
 		.insert = declname##_insert, \
 		.erase = declname##_erase, \
+		.erase_range = declname##_erase_range, \
 		.size = declname##_size, \
 		.begin = declname##_begin, \
 		.end = declname##_end, \
