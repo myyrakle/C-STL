@@ -36,9 +36,6 @@ struct declname##_iterator \
 	type* (*get_ptr)(declname##_iterator*); \
     const type* (*get_cptr)(const declname##_iterator*); \
 	\
-    /*해당 반복자 위치의 노드를 삭제합니다.*/ \
-    void (*pop)(declname##_iterator*); \
-    \
     /*두 반복자를 비교할진저!*/ \
 	bool (*equals)(const declname##_iterator*, const declname##_iterator*); \
 }; \
@@ -48,7 +45,6 @@ void declname##_iterator_prev(declname##_iterator*); \
 type declname##_iterator_get(const declname##_iterator*); \
 type* declname##_iterator_get_ptr(declname##_iterator*); \
 const type* declname##_iterator_get_cptr(const declname##_iterator*); \
-void declname##_iterator_pop(declname##_iterator*); \
 bool declname##_iterator_equals(const declname##_iterator*, const declname##_iterator*); \
 /*비멤버 make 함수요*/ declname##_iterator new_##declname##_iterator(declname##_node*); \
 \
@@ -105,8 +101,8 @@ struct declname \
 	declname##_iterator (*insert)(declname*, declname##_iterator*, const type*); \
 	\
 	/*반복자를 받아서 삭제*/ \
-	void (*erase)(declname*, declname##_iterator*); \
-	void (*erase_range)(declname*, declname##_iterator*, declname##_iterator*); \
+	declname##_iterator (*erase)(declname*, declname##_iterator*); \
+	declname##_iterator (*erase_range)(declname*, declname##_iterator*, declname##_iterator*); \
 	\
 	/*값에 대응하는 노드 삭제*/ \
 	void (*remove)(declname*, type); \
@@ -281,23 +277,53 @@ declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, 
 	} \
 	else \
 		return declname##_end(self); \
+	++ *(size_t*)&self->length; \
 } \
 \
-void declname##_drain_list(declname* self, declname##_iterator* pos, declname* other) \
-{ \
-	assert(false); /*미구현*/ \
-} \
-\
-void declname##_erase(declname* self, declname##_iterator* pos) \
+declname##_iterator declname##_erase(declname* self, declname##_iterator* pos) \
 { \
     assert(pos->ptr!=NULL); \
-	declname##_iterator_pop(pos); \
+	declname##_node* before = pos->ptr->prev; \
+	declname##_node* current = pos->ptr; \
+	declname##_node* after = pos->ptr->next; \
+	\
+	if(before!=NULL) \
+		before->next = current->next; \
+	else \
+		*(declname##_node**)&self->head = after; \
+	\
+	if(after!=NULL) \
+		after->prev = current->prev; \
+	else \
+		*(declname##_node**)&self->tail = before; \
+	\
+	free(current); \
+	-- *(size_t*)&self->length; \
+	return new_##declname##_iterator(after); \
 } \
 \
-void declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
+declname##_iterator declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
 { \
 	assert(begin->ptr!=NULL); \
-	assert(end->ptr!=NULL); \
+	declname##_node* before = begin->ptr->prev; \
+	declname##_node* after = end; \
+	\
+	if(before!=NULL) \
+		before->next = end; \
+	else \
+		*(declname##_node**)&self->head = after; \
+	if(after!=NULL) \
+		after->prev = before; \
+	else \
+		*(declname##_node**)&self->tail = before; \
+	\
+	while(!declname##_iterator_equals(begin, end)) \
+	{ \
+		free(begin->ptr); \
+		declname##_iterator_next(begin); \
+	} \
+	\
+	return end; /*??*/ \
 } \
 \
 void declname##_remove(declname* self, type v) \
@@ -435,6 +461,7 @@ declname new_##declname (void) \
 		.push_back = declname##_push_back, \
 		.pop_back = declname##_pop_back, \
 		.insert = declname##_insert, \
+		.erase = declname##_erase, \
 		.size = declname##_size, \
 		.begin = declname##_begin, \
 		.end = declname##_end, \
@@ -480,22 +507,6 @@ const type* declname##_iterator_get_cptr(const declname##_iterator* self) \
 	return &(self->ptr->value); \
 } \
 \
-void declname##_iterator_pop(declname##_iterator* self) \
-{ \
-    assert(self->ptr!=NULL); \
-    declname##_node* temp_prev = self->ptr->prev; \
-    declname##_node* temp_next = self->ptr->next; \
-    \
-    free(self->ptr); \
-    self->ptr = temp_next; \
-    \
-    if(temp_prev!=NULL) \
-        temp_prev->next = temp_next; \
-    if(temp_next!=NULL) \
-        temp_next->prev = temp_prev; \
-    \
-} \
-\
 bool declname##_iterator_equals(const declname##_iterator* self, const declname##_iterator* other) \
 { \
 	return self->ptr == other->ptr; \
@@ -512,7 +523,6 @@ declname##_iterator new_##declname##_iterator(declname##_node* p) \
 		.get_ptr = declname##_iterator_get_ptr, \
 		.get_cptr = declname##_iterator_get_cptr, \
         .equals = declname##_iterator_equals, \
-        .pop = declname##_iterator_pop \
 	}; \
 	it.ptr = p; \
 	return it; \
