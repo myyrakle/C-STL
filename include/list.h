@@ -104,9 +104,6 @@ struct declname \
 	/*특정 반복자 위치에 값과 함께 노드를 추가하오*/ \
 	declname##_iterator (*insert)(declname*, declname##_iterator*, const type*); \
 	\
-	/*다른 리스트를 빨아먹어서 이어붙이오*/ \
-	void (*drain_list)(declname*, declname##_iterator*, declname*); \
-	\
 	/*반복자를 받아서 삭제*/ \
 	void (*erase)(declname*, declname##_iterator*); \
 	void (*erase_range)(declname*, declname##_iterator*, declname##_iterator*); \
@@ -114,10 +111,6 @@ struct declname \
 	/*값에 대응하는 노드 삭제*/ \
 	void (*remove)(declname*, type); \
 	void (*remove_by)(declname*, bool(*)(const type*)); \
-	\
-	/*정렬용이오*/ \
-	void (*sort)(declname*); \
-	void (*sort_by)(declname*, int (*)(const type*, const type*)); \
 	\
 	/*반복자를 반환하오*/ \
 	declname##_iterator (*begin)(declname*); \
@@ -151,14 +144,11 @@ const type* declname##_back_cptr(const declname*); \
 void declname##_push_back(declname*, type); \
 void declname##_pop_back(declname*); \
 declname##_iterator declname##_insert(declname*, declname##_iterator*, const type*); \
-void declname##_drain_list(declname*, declname##_iterator*, declname*); \
-void declname##_erase(declname*, declname##_iterator*); \
-void declname##_erase_range(declname*, declname##_iterator*, declname##_iterator*); \
+declname##_iterator declname##_erase(declname*, declname##_iterator*); \
+declname##_iterator declname##_erase_range(declname*, declname##_iterator*, declname##_iterator*); \
 void declname##_remove(declname*, type); \
 void declname##_remove_by(declname*, bool(*)(const type*)); \
 size_t declname##_size(const declname*); \
-void declname##_sort(declname*); \
-void declname##_sort_by(declname*, int (*)(const type*, const type*)); \
 declname##_iterator declname##_begin(declname*); \
 declname##_iterator declname##_end(declname*); \
 declname##_iterator declname##_find(const declname*, const type); \
@@ -325,17 +315,6 @@ size_t declname##_size(const declname* self) \
 	return self->length; \
 } \
 \
-void declname##_sort(declname* self) \
-{ \
-	/*qsort(self->data, length, sizeof(type), comp);*/ \
-	assert(false); /*미구현*/ \
-} \
-\
-void declname##_sort_by(declname* self, int (*comp)(const type*, const type*)) \
-{ \
-	assert(false); /*미구현*/ \
-} \
-\
 declname##_iterator declname##_begin(declname* self) \
 { \
 	declname##_iterator it = \
@@ -457,8 +436,6 @@ declname new_##declname (void) \
 		.pop_back = declname##_pop_back, \
 		.insert = declname##_insert, \
 		.size = declname##_size, \
-		.sort = declname##_sort, \
-		.sort_by = declname##_sort_by, \
 		.begin = declname##_begin, \
 		.end = declname##_end, \
 		.find = declname##_find, \
