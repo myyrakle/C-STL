@@ -1,4 +1,5 @@
-#pragma once
+#ifndef C_STL_STACK_H
+#define C_STL_STACK_H
 
 #include<stdlib.h>
 #include<stdbool.h>
@@ -132,3 +133,5 @@ declname new_##declname(void) \
 	}; \
 	return temp; \
 }
+
+#endif

@@ -1,8 +1,9 @@
-#pragma once
+#ifndef C_STL_QUEUE_H
+#define C_STL_QUEUE_H
 
-#include<stdlib.h>
-#include<stdbool.h>
-#include<assert.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
 
 #define decl_queue(declname,type) \
 \
@@ -131,3 +132,5 @@ declname new_##declname(void){ \
 	}; \
 	return temp; \
 }
+
+#endif
