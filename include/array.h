@@ -1,4 +1,5 @@
-#pragma once
+#ifndef C_STL_ARRAY_H
+#define C_STL_ARRAY_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -413,3 +414,5 @@ declname##_iterator new_##declname##_iterator(type* p) \
     }; \
     return it; \
 } 
+
+#endif

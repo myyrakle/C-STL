@@ -1,5 +1,5 @@
-#ifndef C_TEST_LIST_H
-#define C_TEST_LIST_H
+#ifndef C_STL_LIST_H
+#define C_STL_LIST_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -541,4 +541,4 @@ declname##_iterator new_##declname##_iterator(declname##_node* p) \
 	return it; \
 }
 
-#endif //C_TEST_LIST_H
+#endif
