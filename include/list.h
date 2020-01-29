@@ -128,7 +128,7 @@ struct declname \
 /*메서드 선언이오*/ \
 void declname##_clear(declname*); \
 bool declname##_is_empty(const declname*); \
-bool is_not_empty(const declname*); \
+bool declname##_is_not_empty(const declname*); \
 type declname##_front(const declname*); \
 type* declname##_front_ptr(declname*); \
 const type* declname##_front_cptr(const declname*); \

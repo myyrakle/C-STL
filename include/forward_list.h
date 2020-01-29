@@ -114,7 +114,7 @@ struct declname \
 /*메서드 선언이오*/ \
 void declname##_clear(declname*); \
 bool declname##_is_empty(const declname*); \
-bool is_not_empty(const declname*); \
+bool declname##_is_not_empty(const declname*); \
 type declname##_front(const declname*); \
 type* declname##_front_ptr(declname*); \
 const type* declname##_front_cptr(const declname*); \
@@ -224,7 +224,17 @@ declname##_iterator declname##_erase_after(declname* self, declname##_iterator* 
 declname##_iterator declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
 { \
   assert(begin->ptr!=NULL); \
-  assert(end->ptr!=NULL); \
+  declname##_node* before = begin->ptr; \
+  declname##_node* after = end->ptr; \
+  before->next = after; \
+  declname##_iterator_next(begin); \
+  while(!declname##_iterator_equals(begin, end)) \
+	{ \
+		free(begin->ptr); \
+		declname##_iterator_next(begin); \
+	} \
+	\
+	return new_##declname##_iterator(after); \
 } \
 \
 void declname##_remove(declname* self, type v) \
