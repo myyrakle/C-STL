@@ -23,19 +23,19 @@ C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 �
 ## 구현 현황  
   
 매크로의 목록과 현황은 아래와 같습니다.  
-- decl_array : 컴파일타임 정적 배열. 구현  
-- decl_darray : 런타임 고정배열. 구현   
-- decl_vector : 런타임 가변배열. 구현  
-- decl_stack : 스택. 구현  
-- decl_queue : 큐. 구현  
-- decl_list : 양방향 연결리스트. 수정중  
-- decl_forward_list : 단방향 연결리스트. 구현  
-- decl_treeset : 트리셋. 미구현  
-- decl_treemap : 트리맵. 미구현  
-- decl_hashset : 해시셋. 미구현  
-- decl_hashmap : 해시맵. 구현중  
-- decl_maxheap : 최대 힙. 미구현  
-- decl_minheap : 최소 힙. 미구현  
+- decl_array : 컴파일타임 정적 배열(compiletime static array).   
+- decl_darray : 런타임 고정배열(runtime dynamic fixed array).    
+- decl_vector : 런타임 가변배열(runtime dynamic mutable array).   
+- decl_stack : 스택(stack).   
+- decl_queue : 큐(queue).   
+- decl_list : 양방향 연결리스트(linked list).  
+- decl_forward_list : 단방향 연결리스트(single linked list).  
+- decl_treeset : 트리셋(tree set). Not Implemented  
+- decl_treemap : 트리맵(tree map). Not Implemented  
+- decl_hashset : 해시셋(hashtable set). Not Implemented  
+- decl_hashmap : 해시맵(hashtable map). 구현중  
+- decl_maxheap : 최대 힙(max heap). Not Implemented  
+- decl_minheap : 최소 힙(min heap). Not Implemented  
   
 ***  
 
@@ -66,4 +66,4 @@ arr.find(&arr, 100);
 ***  
   
 ## 기여자  
-- [sean9892](https://github.com/sean9892)
+- [sean9892](https://github.com/sean9892) (스택, 큐 구현. 다방면의 피드백과 개선)
