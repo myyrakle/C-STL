@@ -328,12 +328,44 @@ declname##_iterator declname##_erase_range(declname* self, declname##_iterator* 
 \
 void declname##_remove(declname* self, type v) \
 { \
-	assert(false); /*미구현*/ \
+	declname##_node* current_pos = self->head; \
+    declname##_node* before = NULL; \
+	while(current_pos!=NULL) \
+	{ \
+		if(current_pos->value == v) \
+		{ \
+			if(before!=NULL) \
+				before->next = current_pos->next; \
+			declname##_node* after = current_pos->next; \
+			if(after!=NULL) \
+				after->prev = before; \
+			free(current_pos); \
+		} \
+		\
+		before = current_pos; \
+		current_pos = current_pos->next; \
+	} \
 } \
 \
 void declname##_remove_by(declname* self, bool(*eq)(const type*)) \
 { \
-	assert(false); /*미구현*/ \
+	declname##_node* current_pos = self->head; \
+    declname##_node* before = NULL; \
+	while(current_pos!=NULL) \
+	{ \
+		if(eq(&current_pos->value)) \
+		{ \
+			if(before!=NULL) \
+				before->next = current_pos->next; \
+			declname##_node* after = current_pos->next; \
+			if(after!=NULL) \
+				after->prev = before; \
+			free(current_pos); \
+		} \
+		\
+		before = current_pos; \
+		current_pos = current_pos->next; \
+	} \
 } \
 \
 size_t declname##_size(const declname* self) \
@@ -463,6 +495,8 @@ declname new_##declname (void) \
 		.insert = declname##_insert, \
 		.erase = declname##_erase, \
 		.erase_range = declname##_erase_range, \
+		.remove = declname##_remove, \
+		.remove_by = declname##_remove_by, \
 		.size = declname##_size, \
 		.begin = declname##_begin, \
 		.end = declname##_end, \
