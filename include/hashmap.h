@@ -1,5 +1,5 @@
-#ifndef C_STL_ARRAY_H
-#define C_STL_ARRAY_H
+#ifndef C_STL_HASH_MAP_H
+#define C_STL_HASH_MAP_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -13,7 +13,7 @@ struct declname; \
 struct declname##_iterator; \
 typedef struct declname##_node declname##_node; \
 typedef struct declname##_bucket declname##_bucket; \
-typdef struct declname##_bucket_node declname##_bucket_node; \
+typedef struct declname##_bucket_node declname##_bucket_node; \
 typedef struct declname declname; \
 typedef struct declname##_iterator declname##_iterator; \
 \
@@ -37,8 +37,21 @@ struct declname##_bucket \
 \
 struct declname \
 { \
-    declname##_bucket* bucket_list; \
-    size_t bucket_length; \
+    declname##_bucket* bucket_array; \
+    size_t length; \
+    size_t all_count; \
+    \
+    size_t (*bucket_count)(const declname*); \
+    size_t (*size)(const declname*); \
+    size_t (*is_empty)(const declname*); \
+    \
+    size_t (*clear)(declname*); \
+    \
+    declname##_iterator (*find)(const declname*, K); \
+    declname##_iterator (*find_by)(const declname*, bool(*)(const K*)); \
+    \
+    declname##_iterator (*erase)(declname*, declname##_iterator*); \
+    size_t (*remove)(declname*, K); \
 }; \
 
 
