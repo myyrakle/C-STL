@@ -30,7 +30,7 @@ C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 �
 - decl_queue : 큐(queue).   
 - decl_list : 양방향 연결리스트(linked list).  
 - decl_forward_list : 단방향 연결리스트(single linked list).  
-- decl_circular_lisr : 원형 연결리스트(circular linked list)
+- decl_circular_lisr : 원형 연결리스트(circular linked list). 구현중
 - decl_treeset : 트리셋(tree set). Not Implemented  
 - decl_treemap : 트리맵(tree map). Not Implemented  
 - decl_hashset : 해시셋(hashtable set). Not Implemented  
