@@ -223,20 +223,20 @@ void declname##_pop_front(declname* self) \
 type declname##_back(const declname* self) \
 { \
     assert(self!=NULL); \
-    assert(self->tail != NULL); \
-    return self->tail->value; \
+    assert(self->head != NULL); \
+    return self->head->prev->value; \
 } \
 type* declname##_back_ptr(declname* self) \
 { \
     assert(self!=NULL); \
-    assert(self->tail != NULL); \
-    return &(self->tail->value); \
+    assert(self->head != NULL); \
+    return &(self->head->prev->value); \
 } \
 const type* declname##_back_cptr(const declname* self) \
 { \
     assert(self!=NULL); \
-    assert(self->tail != NULL); \
-  return &(self->tail->value); \
+    assert(self->head != NULL); \
+  return &(self->head->prev->value); \
 } \
 \
 void declname##_push_back(declname* self, type v) \
