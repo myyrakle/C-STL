@@ -200,12 +200,18 @@ const type* declname##_front_cptr(const declname* self) \
 \
 void declname##_push_front(declname* self, type v) \
 { \
-    *(declname##_node**)&self->head = declname##_new_node(NULL,&v,self->head); \
+    if(self->head == NULL) \
+    { \
+      *(declname##_node**)&self->head = declname##_new_node(NULL, &v, NULL); \
+      *(declname##_node**)&self->head->prev = self->head; \
+      *(declname##_node**)&self->head->next = self->head; \
+    } \
+    else \
+    { \
+      *(declname##_node**)&self->head = declname##_new_node(self->head->prev, &v, self->head); \
+      *(declname##_node**)&self->head->prev = self->head; \
+    } \
     ++ *(size_t*)&self->length; \
-     if(self->head->next !=NULL) \
-        self->tail->next->prev = self->tail; \
-    if(self->tail == NULL) /*꼬리가 비어있으면 머리가 곧 꼬리*/ \
-        *(declname##_node**)&self->tail = self->head; \
 } \
 \
 void declname##_pop_front(declname* self) \
@@ -213,10 +219,18 @@ void declname##_pop_front(declname* self) \
     assert(self!=NULL); \
     assert(self->head!=NULL); \
     \
-    declname##_node* temp = self->head; \
-    if(self->head->next != NULL) \
-        *(declname##_node**)&self->head = self->head->next; \
-    free(temp); \
+    if(self->length == 1) \
+    { \
+      free(self->head); \
+      *(declname##_node**)&self->head = NULL; \
+    } \
+    else \
+    { \
+      declname##_node* temp = self->head; \
+      *(declname##_node**)&self->head = self->head->next; \
+      *(declname##_node**)&self->head->prev = temp; \
+      free(temp); \
+    } \
     -- *(size_t*)&self->length; \
 } \
 \
