@@ -227,8 +227,8 @@ void declname##_pop_front(declname* self) \
     else \
     { \
       declname##_node* temp = self->head; \
-      *(declname##_node**)&self->head = self->head->next; \
-      *(declname##_node**)&self->head->prev = temp; \
+      *(declname##_node**)&self->head = temp->next; \
+      *(declname##_node**)&self->head->prev = temp->prev; \
       free(temp); \
     } \
     -- *(size_t*)&self->length; \
@@ -256,28 +256,36 @@ const type* declname##_back_cptr(const declname* self) \
 void declname##_push_back(declname* self, type v) \
 { \
     assert(self!=NULL); \
-    *(declname##_node**)&self->tail = declname##_new_node(self->tail, &v, NULL); \
-    if(self->tail->prev !=NULL) \
-        self->tail->prev->next = self->tail; \
-  ++ *(size_t*)&self->length; \
-    if(self->head == NULL) /*머리가 비어있으면 꼬리가 머리*/ \
-        *(declname##_node**)&self->head = self->tail; \
+    if(self->head == NULL) \
+    { \
+      *(declname##_node**)&self->head = declname##_new_node(NULL, &v, NULL); \
+      *(declname##_node**)&self->head->prev = self->head; \
+      *(declname##_node**)&self->head->next = self->head; \
+    } \
+    else \
+    { \
+      *(declname##_node**)&self->head->prev = declname##_new_node(self->head->prev, &v, self->head); \
+      *(declname##_node**)&self->head->prev->prev->next = self->head->prev; \
+    } \
+    ++ *(size_t*)&self->length; \
 } \
 \
 void declname##_pop_back(declname* self) \
 { \
     assert(self!=NULL); \
-  if(self->tail!=NULL) \
+  if(self->length==1) \
   { \
-    declname##_node* temp = self->tail; \
-    if(self->tail->prev != NULL) \
-        { \
-            *(declname##_node**)&self->tail = self->tail->prev; \
-            self->tail->next = NULL; \
-        } \
-    free(temp); \
-    -- *(size_t*)& self->length; \
+    free(self->head); \
+    *(declname##_node**)&self->head = NULL; \
   } \
+  else \
+  { \
+    declname##_node* temp = self->head->prev; \
+    *(declname##_node**)&self->head->prev = temp->prev; \
+    *(declname##_node**)&self->head->prev = temp; \
+    free(temp); \
+  } \
+  -- *(size_t*)&self->length; \
 } \
 \
 declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, const type*v) \
