@@ -229,12 +229,12 @@ declname##_iterator declname##_erase_range(declname* self, declname##_iterator* 
   before->next = after; \
   declname##_iterator_next(begin); \
   while(!declname##_iterator_equals(begin, end)) \
-	{ \
-		free(begin->ptr); \
-		declname##_iterator_next(begin); \
-	} \
-	\
-	return new_##declname##_iterator(after); \
+    { \
+        free(begin->ptr); \
+        declname##_iterator_next(begin); \
+    } \
+    \
+    return new_##declname##_iterator(after); \
 } \
 \
 void declname##_remove(declname* self, type v) \
