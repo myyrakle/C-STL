@@ -154,11 +154,11 @@ bool declname##_contains_by(const declname*, bool(*)(const type*)); \
 void declname##_for_each(const declname*, void(*)(type)); \
 void declname##_for_each_ptr(declname*, void(*)(type*)); \
 void declname##_for_each_cptr(const declname*, void(*)(const type*)); \
-/*비멤버 함수요*/\
+/*비멤버 함수*/\
 declname new_##declname (void); \
 \
 \
-/*이것이 바로... [정의]란 것이다...*/\
+/*메서드 정의부*/\
 void declname##_clear(declname* self)\
 { \
     assert(self!=NULL); \
@@ -203,7 +203,7 @@ void declname##_push_front(declname* self, type v) \
 { \
     *(declname##_node**)&self->head = declname##_new_node(NULL,&v,self->head); \
     ++ *(size_t*)&self->length; \
-     if(self->head->next !=NULL) \
+    if(self->head->next !=NULL) \
         self->tail->next->prev = self->tail; \
     if(self->tail == NULL) /*꼬리가 비어있으면 머리가 곧 꼬리*/ \
         *(declname##_node**)&self->tail = self->head; \
@@ -271,9 +271,8 @@ declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, 
 { \
     assert(pos->ptr!=NULL); \
     pos->ptr = declname##_new_node(pos->ptr->prev, v, pos->ptr); \
-    return new_##declname##_iterator(pos->ptr);
-    ++ *(size_t*)&self->length; \
-    return declname##_end(self); \
+	++ *(size_t*)&self->length; \
+    return new_##declname##_iterator(pos->ptr); \
 } \
 \
 declname##_iterator declname##_erase(declname* self, declname##_iterator* pos) \
@@ -371,15 +370,12 @@ size_t declname##_size(const declname* self) \
 \
 declname##_iterator declname##_begin(declname* self) \
 { \
-    declname##_iterator it = \
-        new_##declname##_iterator(self->head); \
-    return it; \
+    return new_##declname##_iterator(self->head); \
 } \
 \
 declname##_iterator declname##_end(declname* self) \
 { \
-    declname##_iterator it = \
-        new_##declname##_iterator(self->tail); \
+    declname##_iterator it = new_##declname##_iterator(self->tail); \
     declname##_iterator_next(&it); \
     return it; \
 } \

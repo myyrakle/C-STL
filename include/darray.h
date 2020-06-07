@@ -163,7 +163,7 @@ bool declname##_is_empty(const declname* self) \
 \
 bool declname##_is_not_empty(const declname* self) \
 { \
-   return self->data != NULL; \
+    return self->data != NULL; \
 } \
 \
 size_t declname##_size(const declname* self) \
@@ -176,11 +176,11 @@ type declname##_get(const declname* self, size_t index) \
 } \
 type* declname##_get_ptr(declname* self, size_t index) \
 { \
-   return (type*)&(self->data[index]); \
+    return (type*)&(self->data[index]); \
 } \
 const type* declname##_get_cptr(const declname* self, size_t index) \
 { \
-   return &(self->data[index]); \
+    return &(self->data[index]); \
 } \
 \
 int declname##_comparer(const void* lhs, const void* rhs) \
@@ -195,7 +195,7 @@ void declname##_sort(declname* self) \
 \
 void declname##_sort_by(declname* self, int(*comp)(const type*, const type*)) \
 { \
-     qsort(self->data, self->length, sizeof(type), (int(*)(const void*, const void*))comp); \
+    qsort(self->data, self->length, sizeof(type), (int(*)(const void*, const void*))comp); \
 } \
 \
 declname declname##_clone(const declname* self) \
@@ -208,16 +208,12 @@ declname declname##_clone(const declname* self) \
 \
 declname##_iterator declname##_begin(declname* self) \
 { \
-    declname##_iterator it = \
-    new_##declname##_iterator(self->data); \
-    return it; \
+    return new_##declname##_iterator(self->data); \
 } \
 \
 declname##_iterator declname##_end(declname* self) \
 { \
-    declname##_iterator it = \
-    new_##declname##_iterator(self->data+self->length); \
-    return it; \
+    return new_##declname##_iterator(self->data+self->length); \
 } \
 \
 void declname##_fill(declname* self, const type value) \
