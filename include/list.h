@@ -270,14 +270,10 @@ void declname##_pop_back(declname* self) \
 declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, const type*v) \
 { \
     assert(pos->ptr!=NULL); \
-	if(pos->ptr!=NULL) \
-	{ \
-		pos->ptr = declname##_new_node(pos->ptr->prev, v, pos->ptr); \
-		return new_##declname##_iterator(pos->ptr); \
-	} \
-	else \
-		return declname##_end(self); \
-	++ *(size_t*)&self->length; \
+    pos->ptr = declname##_new_node(pos->ptr->prev, v, pos->ptr); \
+    return new_##declname##_iterator(pos->ptr);
+    ++ *(size_t*)&self->length; \
+    return declname##_end(self); \
 } \
 \
 declname##_iterator declname##_erase(declname* self, declname##_iterator* pos) \
