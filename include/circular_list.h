@@ -292,8 +292,8 @@ declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, 
 { \
   assert(pos->ptr!=NULL); \
   ++ *(size_t*)&self->length; \
-  type* before = pos.ptr; \
-  type* after = before->next; \
+  declname##_node* before = pos->ptr; \
+  declname##_node* after = before->next; \
   before->next = declname##_new_node(before, v, after); \
   return new_##declname##_iterator(pos->ptr); \
 } \
