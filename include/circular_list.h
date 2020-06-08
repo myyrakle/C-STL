@@ -290,20 +290,17 @@ void declname##_pop_back(declname* self) \
 \
 declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, const type*v) \
 { \
-    assert(pos->ptr!=NULL); \
-  if(pos->ptr!=NULL) \
-  { \
-    pos->ptr = declname##_new_node(pos->ptr->prev, v, pos->ptr); \
-    return new_##declname##_iterator(pos->ptr); \
-  } \
-  else \
-    return declname##_end(self); \
+  assert(pos->ptr!=NULL); \
   ++ *(size_t*)&self->length; \
+  type* before = pos.ptr; \
+  type* after = before->next; \
+  before->next = declname##_new_node(before, v, after); \
+  return new_##declname##_iterator(pos->ptr); \
 } \
 \
 declname##_iterator declname##_erase(declname* self, declname##_iterator* pos) \
 { \
-    assert(pos->ptr!=NULL); \
+  assert(pos->ptr!=NULL); \
   declname##_node* before = pos->ptr->prev; \
   declname##_node* current = pos->ptr; \
   declname##_node* after = pos->ptr->next; \
@@ -578,7 +575,7 @@ declname##_iterator new_##declname##_iterator(declname##_node* p) \
     .get = declname##_iterator_get, \
     .get_ptr = declname##_iterator_get_ptr, \
     .get_cptr = declname##_iterator_get_cptr, \
-        .equals = declname##_iterator_equals, \
+    .equals = declname##_iterator_equals, \
   }; \
   it.ptr = p; \
   return it; \
