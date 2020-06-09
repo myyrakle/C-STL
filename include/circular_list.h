@@ -301,23 +301,31 @@ declname##_iterator declname##_insert(declname* self, declname##_iterator* pos, 
 declname##_iterator declname##_erase(declname* self, declname##_iterator* pos) \
 { \
   assert(pos->ptr!=NULL); \
-  declname##_node* before = pos->ptr->prev; \
-  declname##_node* current = pos->ptr; \
-  declname##_node* after = pos->ptr->next; \
   \
-  if(before!=NULL) \
-    before->next = current->next; \
-  else \
-    *(declname##_node**)&self->head = after; \
-  \
-  if(after!=NULL) \
-    after->prev = current->prev; \
-  else \
-    *(declname##_node**)&self->tail = before; \
-  \
-  free(current); \
   -- *(size_t*)&self->length; \
-  return new_##declname##_iterator(after); \
+  \
+  if(self->length==1) \
+  { \
+    assert(self->head==pos->ptr); \
+    free(self->head); \
+    *(declname##_node**)&self->head = NULL; \
+    return new_##declname##_iterator(NULL); \
+  } \
+  else \
+  { \
+    declname##_node* before = pos->ptr->prev; \
+    declname##_node* after = pos->ptr->next; \
+    \
+    if(self->head == pos->ptr) \
+      *(declname##_node**)&self->head = after; \
+    \
+    *(declname##_node**)&before->next = after; \
+    *(declname##_node**)&after->prev = before; \
+    \ 
+    free(pos->ptr); \
+    \
+    return new_##declname##_iterator(after); \
+  } \
 } \
 \
 declname##_iterator declname##_erase_range(declname* self, declname##_iterator* begin, declname##_iterator* end) \
