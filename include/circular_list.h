@@ -334,19 +334,15 @@ declname##_iterator declname##_erase_range(declname* self, declname##_iterator* 
   declname##_node* before = begin->ptr->prev; \
   declname##_node* after = end->ptr; \
   \
-  if(before!=NULL) \
-    before->next = after; \
-  else \
+  if(self->head==begin->ptr) \
     *(declname##_node**)&self->head = after; \
-  if(after!=NULL) \
-    after->prev = before; \
-  else \
-    *(declname##_node**)&self->tail = before; \
   \
   while(!declname##_iterator_equals(begin, end)) \
   { \
-    free(begin->ptr); \
-    declname##_iterator_next(begin); \
+    declname##_node* temp = begin->ptr; \
+    begin->ptr = begin->ptr->next; \
+    free(temp); \
+    -- *(size_t*)&self->length; \
   } \
   \
   return new_##declname##_iterator(after); \
@@ -409,8 +405,7 @@ declname##_iterator declname##_begin(declname* self) \
 declname##_iterator declname##_end(declname* self) \
 { \
   declname##_iterator it = \
-    new_##declname##_iterator(self->tail); \
-  declname##_iterator_next(&it); \
+    new_##declname##_iterator(NULL); \
   return it; \
 } \
 \
@@ -503,7 +498,6 @@ declname new_##declname (void) \
   static declname temp = \
   { \
     .head = NULL, \
-    .tail = NULL, \
     .length = 0, \
     .clear = declname##_clear, \
     .is_empty = declname##_is_empty, \
