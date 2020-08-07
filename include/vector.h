@@ -8,7 +8,7 @@
 #define VECTOR_ALLOC_DEFAULT 4
 
 //매크로로 확장되는, 동적 가변배열 유사템플릿입니다.
-//정적배열의 래퍼 유사클래스를 생성합니다.
+//동적배열의 래퍼 유사클래스 선언을 생성합니다.
 #define decl_vector(declname, type)                                                                                         \
                                                                                                                             \
     /*배열 유사클래스 전방선언*/                                                                                 \
@@ -153,8 +153,10 @@
     declname new_##declname();                                                                                              \
     declname new_##declname##_with(size_t);                                                                                 \
     void declname##_alloc(declname *);                                                                                      \
-    void declname##_alloc_reduction(declname *);                                                                            \
-                                                                                                                            \
+    void declname##_alloc_reduction(declname *);
+
+//동적배열의 래퍼 유사클래스 구현을 생성합니다.
+#define def_vector(declname, type)                                                                                         \
     /*배열 메서드 정의.*/                                                                                            \
     void declname##_clear(declname *self)                                                                                   \
     {                                                                                                                       \

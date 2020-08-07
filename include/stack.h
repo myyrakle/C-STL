@@ -45,8 +45,9 @@
     size_t declname##_size(const declname *);                                      \
     bool declname##_is_empty(const declname *);                                    \
     bool declname##_is_not_empty(const declname *);                                \
-    void declname##_clear(declname *);                                             \
-                                                                                   \
+    void declname##_clear(declname *);
+
+#define def_stack(declname, type)                                                  \
     void declname##_push(declname *self, type d)                                   \
     {                                                                              \
         declname##_node *ptr = (declname##_node *)malloc(sizeof(declname##_node)); \

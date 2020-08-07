@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 //매크로로 확장되는, 배열 유사템플릿입니다.
-//정적배열의 래퍼 유사클래스를 생성합니다.
+//정적배열의 래퍼 유사클래스 선언을 생성합니다.
 #define decl_darray(declname, type)                                                                                         \
                                                                                                                             \
     /*배열 유사클래스 전방선언*/                                                                                 \
@@ -138,7 +138,10 @@
                                                                                                                             \
     /*비멤버 함수*/                                                                                                    \
     declname new_##declname();                                                                                              \
-    declname new_##declname##_with(size_t);                                                                                 \
+    declname new_##declname##_with(size_t);
+
+//정적배열의 래퍼 유사클래스 구현을 생성합니다.
+#define def_darray(declname, type)                                                                                          \
                                                                                                                             \
     /*배열 메서드 정의.*/                                                                                            \
     void declname##_clear(declname *self)                                                                                   \

@@ -46,8 +46,9 @@
     const type *declname##_front_cptr(const declname *);                            \
     void declname##_clear(declname *);                                              \
                                                                                     \
-    declname new_##declname(void);                                                  \
-                                                                                    \
+    declname new_##declname(void);
+
+#define def_queue(declname, type)                                                   \
     void declname##_push(declname *self, type value)                                \
     {                                                                               \
         declname##_node *node = (declname##_node *)malloc(sizeof(declname##_node)); \
