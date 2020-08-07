@@ -6,7 +6,7 @@
 #include <assert.h>
 
 //매크로로 확장되는, 연결리스트 유사템플릿입니다.
-//연결리스트의 유사클래스를 생성합니다.
+//연결리스트 유사클래스 선언을 생성합니다.
 #define decl_list(declname, type)                                                                                    \
                                                                                                                      \
     /*리스트 유사클래스 전방선언이오*/                                                                 \
@@ -54,16 +54,6 @@
         \ 
         declname##_node *next; /*다음 포인터입니다.*/                                                        \
     };                                                                                                               \
-                                                                                                                     \
-    declname##_node *declname##_new_node(declname##_node *prev, const type *v, declname##_node *next)                \
-    {                                                                                                                \
-        declname##_node *temp =                                                                                      \
-            malloc(sizeof(declname##_node));                                                                         \
-        temp->prev = prev;                                                                                           \
-        temp->value = *v;                                                                                            \
-        temp->next = next;                                                                                           \
-        return temp;                                                                                                 \
-    }                                                                                                                \
                                                                                                                      \
     /*실체화되는 연결리스트 유사클래스요*/                                                           \
     struct declname                                                                                                  \
@@ -152,7 +142,21 @@
     void declname##_for_each_ptr(declname *, void (*)(type *));                                                      \
     void declname##_for_each_cptr(const declname *, void (*)(const type *));                                         \
     /*비멤버 함수*/                                                                                             \
-    declname new_##declname(void);                                                                                   \
+    declname new_##declname(void);
+
+//연결리스트 유사클래스 구현을 생성합니다.
+#define def_list(declname, type)                                                                                     \
+                                                                                                                     \
+    /*노드 생성자*/                                                                                           \
+    declname##_node *declname##_new_node(declname##_node *prev, const type *v, declname##_node *next)                \
+    {                                                                                                                \
+        declname##_node *temp =                                                                                      \
+            malloc(sizeof(declname##_node));                                                                         \
+        temp->prev = prev;                                                                                           \
+        temp->value = *v;                                                                                            \
+        temp->next = next;                                                                                           \
+        return temp;                                                                                                 \
+    }                                                                                                                \
                                                                                                                      \
     /*메서드 정의부*/                                                                                          \
     void declname##_clear(declname *self)                                                                            \

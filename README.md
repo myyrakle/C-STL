@@ -42,11 +42,14 @@ C의 매크로 함수를 응용하여 C++의 STL(Standard Template Library)을 �
 
 ## 사용례
   
-C++의 std::array에 해당하는 매크로는 decl_array입니다.  
+C++의 std::array에 해당하는 매크로는 decl_array, def_array 입니다.  
 아래와 같이 선언하면 int 타입에 길이가 10인 배열 타입이 IntArray라는 이름으로 구체화됩니다.  
 ```
 decl_array(IntArray, int, 10)
+def_array(IntArray, int, 10)
 ```
+decl_XXX 는 .h파일에 들어갈 전방선언이 포함되어있습니다.
+def_XXX 는 .c파일에 들어갈 메서드 구현이 포함되어있습니다. def_XXX를 .h 파일에서 사용하시면 안됩니다.
   
   
 그리고 객체의 생성은 아래와 같이 합니다. 꼭 new를 사용해야 하는 건 아니지만, 추천하지 않습니다.  
