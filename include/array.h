@@ -4,221 +4,223 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-//매크로로 확장되는, 배열 유사템플릿입니다.
-//정적배열의 래퍼 유사클래스 선언을 생성합니다.
-#define decl_array(declname, type, length)                                                                                  \
+// TypeName: type name 
+// T: element type
+// Length: length of array
+#define decl_array(TypeName, T, Length)                                                                                     \
                                                                                                                             \
-    /*배열 유사클래스 전방선언*/                                                                                 \
-    struct declname;                                                                                                        \
-    typedef struct declname declname;                                                                                       \
+    /* prototypes */                                                                                                        \
+    struct TypeName;                                                                                                        \
+    typedef struct TypeName TypeName;                                                                                       \
+    struct TypeName##_iterator;                                                                                             \
+    typedef struct TypeName##_iterator TypeName##_iterator;                                                                 \
                                                                                                                             \
-    /*전용 반복자 유사클래스 전방선언*/                                                                       \
-    struct declname##_iterator;                                                                                             \
-    typedef struct declname##_iterator declname##_iterator;                                                                 \
-                                                                                                                            \
-    /*반복자 유사클래스.*/                                                                                          \
-    struct declname##_iterator                                                                                              \
+    /* iterator of container */                                                                                             \
+    struct TypeName##_iterator                                                                                              \
     {                                                                                                                       \
         type *ptr;                                                                                                          \
                                                                                                                             \
-        /*반복을 하거나 역반복을 수행*/                                                                         \
-        void (*next)(declname##_iterator *);                                                                                \
-        void (*prev)(declname##_iterator *);                                                                                \
+        /* iterate */                                                                                                       \
+        void (*next)(TypeName##_iterator *);                                                                                \
+        void (*prev)(TypeName##_iterator *);                                                                                \
                                                                                                                             \
-        /*반복자에 담긴 값이나 그 포인터를 가져옴.*/                                                       \
-        type (*get)(const declname##_iterator *);                                                                           \
-        type *(*get_ptr)(declname##_iterator *);                                                                            \
+        /* get value */                                                                                                     \
+        type (*get)(const TypeName##_iterator *);                                                                           \
+        type *(*get_ptr)(TypeName##_iterator *);                                                                            \
                                                                                                                             \
-        /*두 반복자를 비교. 같으면 true*/                                                                         \
-        bool (*equals)(const declname##_iterator *, const declname##_iterator *);                                           \
+        /* value comparison */                                                                                              \
+        bool (*equals)(const TypeName##_iterator *, const TypeName##_iterator *);                                           \
     };                                                                                                                      \
-    /*유사 메서드 선언*/                                                                                             \
-    void declname##_iterator_next(declname##_iterator *);                                                                   \
-    void declname##_iterator_prev(declname##_iterator *);                                                                   \
-    type declname##_iterator_get(const declname##_iterator *);                                                              \
-    type *declname##_iterator_get_ptr(declname##_iterator *);                                                               \
-    bool declname##_iterator_equals(const declname##_iterator *, const declname##_iterator *);                              \
-    /*비멤버 new 함수 선언*/                                                                                         \
-    declname##_iterator new_##declname##_iterator(type *);                                                                  \
                                                                                                                             \
-    /*실체화되는 배열 유사클래스*/                                                                              \
-    struct declname                                                                                                         \
+    /* method definition */                                                                                                 \
+    void TypeName##_iterator_next(TypeName##_iterator *);                                                                   \
+    void TypeName##_iterator_prev(TypeName##_iterator *);                                                                   \
+    type TypeName##_iterator_get(const TypeName##_iterator *);                                                              \
+    type *TypeName##_iterator_get_ptr(TypeName##_iterator *);                                                               \
+    bool TypeName##_iterator_equals(const TypeName##_iterator *, const TypeName##_iterator *);                              \
+    /* constructor function */                                                                                              \
+    TypeName##_iterator new_##TypeName##_iterator(type *);                                                                  \
+                                                                                                                            \
+    /* container definition */                                                                                              \
+    struct TypeName                                                                                                         \
     {                                                                                                                       \
         type data[length];                                                                                                  \
                                                                                                                             \
-        /*길이를 가져옴*/                                                                                             \
-        size_t (*size)(const declname *);                                                                                   \
+        /* get size of array */                                                                                             \
+        size_t (*size)(const TypeName *);                                                                                   \
                                                                                                                             \
-        /*요소 액세스*/                                                                                                \
-        type (*get)(const declname *, size_t);                                                                              \
-        type *(*get_ptr)(declname *, size_t);                                                                               \
-        const type *(*get_cptr)(const declname *, size_t);                                                                  \
+        /* get element of array */                                                                                          \
+        type (*get)(const TypeName *, size_t);                                                                              \
+        type *(*get_ptr)(TypeName *, size_t);                                                                               \
+        const type *(*get_cptr)(const TypeName *, size_t);                                                                  \
                                                                                                                             \
-        declname (*clone)(const declname *);                                                                                \
+        /* Returns a copy of the array */                                                                                   \
+        TypeName (*clone)(const TypeName *);                                                                                \
                                                                                                                             \
-        /*반복자를 반환*/                                                                                             \
-        declname##_iterator (*begin)(declname *);                                                                           \
-        declname##_iterator (*end)(declname *);                                                                             \
+        /* iterator */                                                                                                      \
+        TypeName##_iterator (*begin)(TypeName *);                                                                           \
+        TypeName##_iterator (*end)(TypeName *);                                                                             \
                                                                                                                             \
-        /*선형탐색 후 찾은 위치의 반복자를 반환*/                                                           \
-        declname##_iterator (*find)(const declname *, const type);                                                          \
-        declname##_iterator (*find_by)(const declname *, int (*)(const type *));                                            \
+        /* Returns an iterator of the position found after linear search */                                                 \
+        TypeName##_iterator (*find)(const TypeName *, const type);                                                          \
+        TypeName##_iterator (*find_by)(const TypeName *, int (*)(const type *));                                            \
                                                                                                                             \
-        /*선형탐색 후 해당하는 인덱스를 반환*/                                                               \
-        size_t (*indexof)(const declname *, const type);                                                                    \
-        size_t (*indexof_by)(const declname *, int (*)(const type *));                                                      \
+        /* Returns the corresponding index after linear search */                                                           \
+        size_t (*indexof)(const TypeName *, const type);                                                                    \
+        size_t (*indexof_by)(const TypeName *, int (*)(const type *));                                                      \
                                                                                                                             \
-        /*선형탐색으로 포함 여부를 확인*/                                                                      \
-        bool (*contains)(const declname *, const type);                                                                     \
-        bool (*contains_by)(const declname *, int (*)(const type *));                                                       \
+        /* Check for inclusion by linear search */                                                                          \
+        bool (*contains)(const TypeName *, const type);                                                                     \
+        bool (*contains_by)(const TypeName *, int (*)(const type *));                                                       \
                                                                                                                             \
-        /*이진탐색 후 찾은 위치의 반복자를 반환*/                                                           \
-        declname##_iterator (*bfind)(const declname *, const type);                                                         \
-        declname##_iterator (*bfind_by)(const declname *, const type *, int (*)(const type *, const type *));               \
+        /* Returns an iterator of the position found after binary search */                                                 \
+        TypeName##_iterator (*bfind)(const TypeName *, const type);                                                         \
+        TypeName##_iterator (*bfind_by)(const TypeName *, const type *, int (*)(const type *, const type *));               \
                                                                                                                             \
-        /*이진탐색 후 해당하는 인덱스를 반환*/                                                               \
-        size_t (*bindexof)(const declname *, const type);                                                                   \
-        size_t (*bindexof_by)(const declname *, const type *, int (*)(const type *, const type *));                         \
+        /* Returns the corresponding index after binary search */                                                           \
+        size_t (*bindexof)(const TypeName *, const type);                                                                   \
+        size_t (*bindexof_by)(const TypeName *, const type *, int (*)(const type *, const type *));                         \
                                                                                                                             \
-        /*이진탐색으로 포함 여부를 확인*/                                                                      \
-        bool (*bcontains)(const declname *, const type);                                                                    \
-        bool (*bcontains_by)(const declname *, const type *, int (*)(const type *, const type *));                          \
+        /* Check for inclusion with binary search */                                                                        \
+        bool (*bcontains)(const TypeName *, const type);                                                                    \
+        bool (*bcontains_by)(const TypeName *, const type *, int (*)(const type *, const type *));                          \
                                                                                                                             \
-        /*해당 값이나 값의 포인터로, 배열을 채움*/                                                          \
-        void (*fill)(declname *, const type);                                                                               \
-        void (*fill_ptr)(declname *, const type *);                                                                         \
+        /* Fill an array with its value or a pointer to a value */                                                          \
+        void (*fill)(TypeName *, const type);                                                                               \
+        void (*fill_ptr)(TypeName *, const type *);                                                                         \
                                                                                                                             \
-        /*정렬용*/                                                                                                       \
-        void (*sort)(declname *);                                                                                           \
-        void (*sort_by)(declname *, int (*)(const type *, const type *));                                                   \
+        /* sort */                                                                                                          \
+        void (*sort)(TypeName *);                                                                                           \
+        void (*sort_by)(TypeName *, int (*)(const type *, const type *));                                                   \
                                                                                                                             \
-        /*콜백함수를 받아서 범위기반 루프를 돎*/                                                            \
-        void (*for_each)(const declname *, void (*)(const type));                                                           \
-        void (*for_each_ptr)(declname *, void (*)(type *));                                                                 \
-        void (*for_each_cptr)(const declname *, void (*)(const type *));                                                    \
+        /* Receive a callback function and run a range-based loop. */                                                       \
+        void (*for_each)(const TypeName *, void (*)(const type));                                                           \
+        void (*for_each_ptr)(TypeName *, void (*)(type *));                                                                 \
+        void (*for_each_cptr)(const TypeName *, void (*)(const type *));                                                    \
     };                                                                                                                      \
-    /*유사 메서드 선언*/                                                                                             \
-    size_t declname##_size(const declname *);                                                                               \
-    type declname##_get(const declname *, size_t);                                                                          \
-    type *declname##_get_ptr(declname *, size_t);                                                                           \
-    const type *declname##_get_cptr(const declname *, size_t);                                                              \
-    declname declname##_clone(const declname *);                                                                            \
-    declname##_iterator declname##_begin(declname *);                                                                       \
-    declname##_iterator declname##_end(declname *);                                                                         \
-    declname##_iterator declname##_find(const declname *, const type);                                                      \
-    declname##_iterator declname##_find_by(const declname *, int (*)(const type *));                                        \
-    size_t declname##_indexof(const declname *, const type);                                                                \
-    size_t declname##_indexof_by(const declname *, int (*)(const type *));                                                  \
-    bool declname##_contains(const declname *, const type);                                                                 \
-    bool declname##_contains_by(const declname *, int (*)(const type *));                                                   \
-    declname##_iterator declname##_bfind(const declname *, const type);                                                     \
-    declname##_iterator declname##_bfind_by(const declname *, const type *, int (*)(const type *, const type *));           \
-    size_t declname##_bindexof(const declname *, const type);                                                               \
-    size_t declname##_bindexof_by(const declname *, const type *, int (*)(const type *, const type *));                     \
-    bool declname##_bcontains(const declname *, const type);                                                                \
-    bool declname##_bcontains_by(const declname *, const type *, int (*)(const type *, const type *));                      \
-    void declname##_fill(declname *, const type);                                                                           \
-    void declname##_fill_ptr(declname *, const type *);                                                                     \
-    void declname##_sort(declname *);                                                                                       \
-    void declname##_sort_by(declname *, int (*)(const type *, const type *));                                               \
-    void declname##_for_each(const declname *, void (*)(const type));                                                       \
-    void declname##_for_each_ptr(declname *, void (*)(type *));                                                             \
-    void declname##_for_each_cptr(const declname *, void (*)(const type *));                                                \
-    /*비멤버 함수*/                                                                                                    \
-    declname new_##declname(void);
+                                                                                                                            \
+    /* method prototype */                                                                                                  \
+    size_t TypeName##_size(const TypeName *);                                                                               \
+    type TypeName##_get(const TypeName *, size_t);                                                                          \
+    type *TypeName##_get_ptr(TypeName *, size_t);                                                                           \
+    const type *TypeName##_get_cptr(const TypeName *, size_t);                                                              \
+    TypeName TypeName##_clone(const TypeName *);                                                                            \
+    TypeName##_iterator TypeName##_begin(TypeName *);                                                                       \
+    TypeName##_iterator TypeName##_end(TypeName *);                                                                         \
+    TypeName##_iterator TypeName##_find(const TypeName *, const type);                                                      \
+    TypeName##_iterator TypeName##_find_by(const TypeName *, int (*)(const type *));                                        \
+    size_t TypeName##_indexof(const TypeName *, const type);                                                                \
+    size_t TypeName##_indexof_by(const TypeName *, int (*)(const type *));                                                  \
+    bool TypeName##_contains(const TypeName *, const type);                                                                 \
+    bool TypeName##_contains_by(const TypeName *, int (*)(const type *));                                                   \
+    TypeName##_iterator TypeName##_bfind(const TypeName *, const type);                                                     \
+    TypeName##_iterator TypeName##_bfind_by(const TypeName *, const type *, int (*)(const type *, const type *));           \
+    size_t TypeName##_bindexof(const TypeName *, const type);                                                               \
+    size_t TypeName##_bindexof_by(const TypeName *, const type *, int (*)(const type *, const type *));                     \
+    bool TypeName##_bcontains(const TypeName *, const type);                                                                \
+    bool TypeName##_bcontains_by(const TypeName *, const type *, int (*)(const type *, const type *));                      \
+    void TypeName##_fill(TypeName *, const type);                                                                           \
+    void TypeName##_fill_ptr(TypeName *, const type *);                                                                     \
+    void TypeName##_sort(TypeName *);                                                                                       \
+    void TypeName##_sort_by(TypeName *, int (*)(const type *, const type *));                                               \
+    void TypeName##_for_each(const TypeName *, void (*)(const type));                                                       \
+    void TypeName##_for_each_ptr(TypeName *, void (*)(type *));                                                             \
+    void TypeName##_for_each_cptr(const TypeName *, void (*)(const type *));                                                \
+    /* non-member functions prototype */                                                                                    \
+    TypeName new_##TypeName(void);
 
-//정적배열의 래퍼 유사클래스 구현을 생성합니다.
-#define def_array(declname, type, length)                                                                                  \
+// container definition
+#define def_array(TypeName, type, length)                                                                                  \
     /*배열 메서드 정의.*/                                                                                            \
-    size_t declname##_size(const declname *self)                                                                            \
+    size_t TypeName##_size(const TypeName *self)                                                                            \
     {                                                                                                                       \
         return length;                                                                                                      \
     }                                                                                                                       \
-    type declname##_get(const declname *self, size_t index)                                                                 \
+    type TypeName##_get(const TypeName *self, size_t index)                                                                 \
     {                                                                                                                       \
         return self->data[index];                                                                                           \
     }                                                                                                                       \
-    type *declname##_get_ptr(declname *self, size_t index)                                                                  \
+    type *TypeName##_get_ptr(TypeName *self, size_t index)                                                                  \
     {                                                                                                                       \
         return &(self->data[index]);                                                                                        \
     }                                                                                                                       \
-    const type *declname##_get_cptr(const declname *self, size_t index)                                                     \
+    const type *TypeName##_get_cptr(const TypeName *self, size_t index)                                                     \
     {                                                                                                                       \
         return &(self->data[index]);                                                                                        \
     }                                                                                                                       \
                                                                                                                             \
-    int declname##_comparer(const void *lhs, const void *rhs)                                                               \
+    int TypeName##_comparer(const void *lhs, const void *rhs)                                                               \
     {                                                                                                                       \
         return *(type *)lhs - *(type *)rhs;                                                                                 \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_sort(declname *self)                                                                                    \
+    void TypeName##_sort(TypeName *self)                                                                                    \
     {                                                                                                                       \
-        qsort(self->data, length, sizeof(type), declname##_comparer);                                                       \
+        qsort(self->data, length, sizeof(type), TypeName##_comparer);                                                       \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_sort_by(declname *self, int (*comp)(const type *, const type *))                                        \
+    void TypeName##_sort_by(TypeName *self, int (*comp)(const type *, const type *))                                        \
     {                                                                                                                       \
         qsort(self->data, length, sizeof(type), (int (*)(const void *, const void *))comp);                                 \
     }                                                                                                                       \
                                                                                                                             \
-    declname declname##_clone(const declname *self)                                                                         \
+    TypeName TypeName##_clone(const TypeName *self)                                                                         \
     {                                                                                                                       \
-        declname temp = new_##declname();                                                                                   \
+        TypeName temp = new_##TypeName();                                                                                   \
         for (int i = 0; i < length; ++i)                                                                                    \
             temp.data[i] = self->data[i];                                                                                   \
         return temp;                                                                                                        \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_begin(declname *self)                                                                    \
+    TypeName##_iterator TypeName##_begin(TypeName *self)                                                                    \
     {                                                                                                                       \
-        return new_##declname##_iterator(self->data);                                                                       \
+        return new_##TypeName##_iterator(self->data);                                                                       \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_end(declname *self)                                                                      \
+    TypeName##_iterator TypeName##_end(TypeName *self)                                                                      \
     {                                                                                                                       \
-        return new_##declname##_iterator(self->data + length);                                                              \
+        return new_##TypeName##_iterator(self->data + length);                                                              \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_fill(declname *self, const type value)                                                                  \
+    void TypeName##_fill(TypeName *self, const type value)                                                                  \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             self->data[i] = value;                                                                                          \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_fill_ptr(declname *self, const type *value)                                                             \
+    void TypeName##_fill_ptr(TypeName *self, const type *value)                                                             \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             self->data[i] = *value;                                                                                         \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_find(const declname *self, const type key)                                               \
+    TypeName##_iterator TypeName##_find(const TypeName *self, const type key)                                               \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (self->data[i] == key)                                                                                       \
-                return new_##declname##_iterator((type *)&(self->data[i]));                                                 \
+                return new_##TypeName##_iterator((type *)&(self->data[i]));                                                 \
                                                                                                                             \
-        return self->end((declname *)&self);                                                                                \
+        return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_find_by(const declname *self, int (*comp)(const type *))                                 \
+    TypeName##_iterator TypeName##_find_by(const TypeName *self, int (*comp)(const type *))                                 \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
-                return new_##declname##_iterator((type *)&(self->data[i]));                                                 \
+                return new_##TypeName##_iterator((type *)&(self->data[i]));                                                 \
                                                                                                                             \
-        return self->end((declname *)&self);                                                                                \
+        return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_bfind(const declname *self, const type key)                                              \
+    TypeName##_iterator TypeName##_bfind(const TypeName *self, const type key)                                              \
     {                                                                                                                       \
-        type *p = bsearch(&key, self->data, length, sizeof(type), declname##_comparer);                                     \
+        type *p = bsearch(&key, self->data, length, sizeof(type), TypeName##_comparer);                                     \
         if (self->data <= p && p <= &(self->data[length - 1]))                                                              \
-            return new_##declname##_iterator(p);                                                                            \
-        return self->end((declname *)&self);                                                                                \
+            return new_##TypeName##_iterator(p);                                                                            \
+        return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    int declname##_bsearch(const declname *self, const type *key, int (*comp)(const type *, const type *))                  \
+    int TypeName##_bsearch(const TypeName *self, const type *key, int (*comp)(const type *, const type *))                  \
     {                                                                                                                       \
         int head = 0;                                                                                                       \
         int tail = length - 1;                                                                                              \
@@ -246,15 +248,15 @@
         }                                                                                                                   \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator declname##_bfind_by(const declname *self, const type *key, int (*comp)(const type *, const type *)) \
+    TypeName##_iterator TypeName##_bfind_by(const TypeName *self, const type *key, int (*comp)(const type *, const type *)) \
     {                                                                                                                       \
-        int index = declname##_bsearch(self, key, comp);                                                                    \
+        int index = TypeName##_bsearch(self, key, comp);                                                                    \
         if (0 <= index && index < length)                                                                                   \
-            return new_##declname##_iterator((type *)&self->data[index]);                                                   \
-        return self->end((declname *)&self);                                                                                \
+            return new_##TypeName##_iterator((type *)&self->data[index]);                                                   \
+        return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    size_t declname##_indexof(const declname *self, const type key)                                                         \
+    size_t TypeName##_indexof(const TypeName *self, const type key)                                                         \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (self->data[i] == key)                                                                                       \
@@ -262,7 +264,7 @@
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    size_t declname##_indexof_by(const declname *self, int (*comp)(const type *))                                           \
+    size_t TypeName##_indexof_by(const TypeName *self, int (*comp)(const type *))                                           \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
@@ -270,23 +272,23 @@
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    size_t declname##_bindexof(const declname *self, const type key)                                                        \
+    size_t TypeName##_bindexof(const TypeName *self, const type key)                                                        \
     {                                                                                                                       \
-        type *p = bsearch(&key, self->data, length, sizeof(type), declname##_comparer);                                     \
+        type *p = bsearch(&key, self->data, length, sizeof(type), TypeName##_comparer);                                     \
         if (self->data <= p && p <= &(self->data[length - 1]))                                                              \
             return p - self->data;                                                                                          \
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    size_t declname##_bindexof_by(const declname *self, const type *key, int (*comp)(const type *, const type *))           \
+    size_t TypeName##_bindexof_by(const TypeName *self, const type *key, int (*comp)(const type *, const type *))           \
     {                                                                                                                       \
-        int index = declname##_bsearch(self, key, comp);                                                                    \
+        int index = TypeName##_bsearch(self, key, comp);                                                                    \
         if (0 <= index && index < length)                                                                                   \
             return index;                                                                                                   \
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    bool declname##_contains(const declname *self, const type key)                                                          \
+    bool TypeName##_contains(const TypeName *self, const type key)                                                          \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (self->data[i] == key)                                                                                       \
@@ -294,7 +296,7 @@
         return 0;                                                                                                           \
     }                                                                                                                       \
                                                                                                                             \
-    bool declname##_contains_by(const declname *self, int (*comp)(const type *))                                            \
+    bool TypeName##_contains_by(const TypeName *self, int (*comp)(const type *))                                            \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
@@ -302,109 +304,109 @@
         return 0;                                                                                                           \
     }                                                                                                                       \
                                                                                                                             \
-    bool declname##_bcontains(const declname *self, const type key)                                                         \
+    bool TypeName##_bcontains(const TypeName *self, const type key)                                                         \
     {                                                                                                                       \
-        type *p = bsearch(&key, self->data, length, sizeof(type), declname##_comparer);                                     \
+        type *p = bsearch(&key, self->data, length, sizeof(type), TypeName##_comparer);                                     \
         if (self->data <= p && p <= &(self->data[length - 1]))                                                              \
             return 1;                                                                                                       \
         return 0;                                                                                                           \
     }                                                                                                                       \
                                                                                                                             \
-    bool declname##_bcontains_by(const declname *self, const type *key, int (*comp)(const type *, const type *))            \
+    bool TypeName##_bcontains_by(const TypeName *self, const type *key, int (*comp)(const type *, const type *))            \
     {                                                                                                                       \
-        int index = declname##_bsearch(self, key, comp);                                                                    \
+        int index = TypeName##_bsearch(self, key, comp);                                                                    \
         if (0 <= index && index < length)                                                                                   \
             return 1;                                                                                                       \
         return 0;                                                                                                           \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_for_each(const declname *self, void (*f)(const type))                                                   \
+    void TypeName##_for_each(const TypeName *self, void (*f)(const type))                                                   \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             f(self->data[i]);                                                                                               \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_for_each_ptr(declname *self, void (*f)(type *))                                                         \
+    void TypeName##_for_each_ptr(TypeName *self, void (*f)(type *))                                                         \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             f(&self->data[i]);                                                                                              \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_for_each_cptr(const declname *self, void (*f)(const type *))                                            \
+    void TypeName##_for_each_cptr(const TypeName *self, void (*f)(const type *))                                            \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             f(&self->data[i]);                                                                                              \
     }                                                                                                                       \
                                                                                                                             \
-    declname new_##declname(void)                                                                                           \
+    TypeName new_##TypeName(void)                                                                                           \
     {                                                                                                                       \
-        static declname temp =                                                                                              \
+        static TypeName temp =                                                                                              \
             {                                                                                                               \
-                .size = declname##_size,                                                                                    \
-                .get = declname##_get,                                                                                      \
-                .get_ptr = declname##_get_ptr,                                                                              \
-                .get_cptr = declname##_get_cptr,                                                                            \
-                .sort = declname##_sort,                                                                                    \
-                .sort_by = declname##_sort_by,                                                                              \
-                .clone = declname##_clone,                                                                                  \
-                .begin = declname##_begin,                                                                                  \
-                .end = declname##_end,                                                                                      \
-                .fill = declname##_fill,                                                                                    \
-                .fill_ptr = declname##_fill_ptr,                                                                            \
-                .find = declname##_find,                                                                                    \
-                .find_by = declname##_find_by,                                                                              \
-                .bfind = declname##_bfind,                                                                                  \
-                .bfind_by = declname##_bfind_by,                                                                            \
-                .indexof = declname##_indexof,                                                                              \
-                .indexof_by = declname##_indexof_by,                                                                        \
-                .bindexof = declname##_bindexof,                                                                            \
-                .bindexof_by = declname##_bindexof_by,                                                                      \
-                .contains = declname##_contains,                                                                            \
-                .contains_by = declname##_contains_by,                                                                      \
-                .bcontains = declname##_bcontains,                                                                          \
-                .bcontains_by = declname##_bcontains_by,                                                                    \
-                .for_each = declname##_for_each,                                                                            \
-                .for_each_ptr = declname##_for_each_ptr,                                                                    \
-                .for_each_cptr = declname##_for_each_cptr};                                                                 \
+                .size = TypeName##_size,                                                                                    \
+                .get = TypeName##_get,                                                                                      \
+                .get_ptr = TypeName##_get_ptr,                                                                              \
+                .get_cptr = TypeName##_get_cptr,                                                                            \
+                .sort = TypeName##_sort,                                                                                    \
+                .sort_by = TypeName##_sort_by,                                                                              \
+                .clone = TypeName##_clone,                                                                                  \
+                .begin = TypeName##_begin,                                                                                  \
+                .end = TypeName##_end,                                                                                      \
+                .fill = TypeName##_fill,                                                                                    \
+                .fill_ptr = TypeName##_fill_ptr,                                                                            \
+                .find = TypeName##_find,                                                                                    \
+                .find_by = TypeName##_find_by,                                                                              \
+                .bfind = TypeName##_bfind,                                                                                  \
+                .bfind_by = TypeName##_bfind_by,                                                                            \
+                .indexof = TypeName##_indexof,                                                                              \
+                .indexof_by = TypeName##_indexof_by,                                                                        \
+                .bindexof = TypeName##_bindexof,                                                                            \
+                .bindexof_by = TypeName##_bindexof_by,                                                                      \
+                .contains = TypeName##_contains,                                                                            \
+                .contains_by = TypeName##_contains_by,                                                                      \
+                .bcontains = TypeName##_bcontains,                                                                          \
+                .bcontains_by = TypeName##_bcontains_by,                                                                    \
+                .for_each = TypeName##_for_each,                                                                            \
+                .for_each_ptr = TypeName##_for_each_ptr,                                                                    \
+                .for_each_cptr = TypeName##_for_each_cptr};                                                                 \
         return temp;                                                                                                        \
     }                                                                                                                       \
                                                                                                                             \
     /*반복자 메서드 정의*/                                                                                          \
-    void declname##_iterator_next(declname##_iterator *self)                                                                \
+    void TypeName##_iterator_next(TypeName##_iterator *self)                                                                \
     {                                                                                                                       \
         ++(self->ptr);                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    void declname##_iterator_prev(declname##_iterator *self)                                                                \
+    void TypeName##_iterator_prev(TypeName##_iterator *self)                                                                \
     {                                                                                                                       \
         --(self->ptr);                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    type declname##_iterator_get(const declname##_iterator *self)                                                           \
+    type TypeName##_iterator_get(const TypeName##_iterator *self)                                                           \
     {                                                                                                                       \
         return *(self->ptr);                                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    type *declname##_iterator_get_ptr(declname##_iterator *self)                                                            \
+    type *TypeName##_iterator_get_ptr(TypeName##_iterator *self)                                                            \
     {                                                                                                                       \
         return self->ptr;                                                                                                   \
     }                                                                                                                       \
                                                                                                                             \
-    bool declname##_iterator_equals(const declname##_iterator *self, const declname##_iterator *other)                      \
+    bool TypeName##_iterator_equals(const TypeName##_iterator *self, const TypeName##_iterator *other)                      \
     {                                                                                                                       \
         return self->ptr == other->ptr;                                                                                     \
     }                                                                                                                       \
                                                                                                                             \
-    declname##_iterator new_##declname##_iterator(type *p)                                                                  \
+    TypeName##_iterator new_##TypeName##_iterator(type *p)                                                                  \
     {                                                                                                                       \
-        declname##_iterator it =                                                                                            \
+        TypeName##_iterator it =                                                                                            \
             {                                                                                                               \
                 p,                                                                                                          \
-                declname##_iterator_next,                                                                                   \
-                declname##_iterator_prev,                                                                                   \
-                declname##_iterator_get,                                                                                    \
-                declname##_iterator_get_ptr,                                                                                \
-                declname##_iterator_equals};                                                                                \
+                TypeName##_iterator_next,                                                                                   \
+                TypeName##_iterator_prev,                                                                                   \
+                TypeName##_iterator_get,                                                                                    \
+                TypeName##_iterator_get_ptr,                                                                                \
+                TypeName##_iterator_equals};                                                                                \
         return it;                                                                                                          \
     }
 
