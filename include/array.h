@@ -130,20 +130,26 @@
     TypeName new_##TypeName(void);
 
 // container definition
-#define def_array(TypeName, type, length)                                                                                  \
-    /*배열 메서드 정의.*/                                                                                            \
+#define def_array(TypeName, type, length)                                                                                   \
+                                                                                                                            \
+    typedef int (*TypeName##_Compare)(const type *, const type *);                                                          \
+    typedef int (*TypeName##_Find)(const type *);                                                                           \
+                                                                                                                            \
     size_t TypeName##_size(const TypeName *self)                                                                            \
     {                                                                                                                       \
         return length;                                                                                                      \
     }                                                                                                                       \
+                                                                                                                            \
     type TypeName##_get(const TypeName *self, size_t index)                                                                 \
     {                                                                                                                       \
         return self->data[index];                                                                                           \
     }                                                                                                                       \
+                                                                                                                            \
     type *TypeName##_get_ptr(TypeName *self, size_t index)                                                                  \
     {                                                                                                                       \
         return &(self->data[index]);                                                                                        \
     }                                                                                                                       \
+                                                                                                                            \
     const type *TypeName##_get_cptr(const TypeName *self, size_t index)                                                     \
     {                                                                                                                       \
         return &(self->data[index]);                                                                                        \
@@ -159,9 +165,9 @@
         qsort(self->data, length, sizeof(type), TypeName##_comparer);                                                       \
     }                                                                                                                       \
                                                                                                                             \
-    void TypeName##_sort_by(TypeName *self, int (*comp)(const type *, const type *))                                        \
+    void TypeName##_sort_by(TypeName *self, TypeName##_Compare comp)                                        \
     {                                                                                                                       \
-        qsort(self->data, length, sizeof(type), (int (*)(const void *, const void *))comp);                                 \
+        qsort(self->data, length, sizeof(type), (TypeName##_Compare)comp);                                 \
     }                                                                                                                       \
                                                                                                                             \
     TypeName TypeName##_clone(const TypeName *self)                                                                         \
@@ -203,7 +209,7 @@
         return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    TypeName##_iterator TypeName##_find_by(const TypeName *self, int (*comp)(const type *))                                 \
+    TypeName##_iterator TypeName##_find_by(const TypeName *self, TypeName##_Find comp)                                 \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
@@ -220,7 +226,7 @@
         return self->end((TypeName *)&self);                                                                                \
     }                                                                                                                       \
                                                                                                                             \
-    int TypeName##_bsearch(const TypeName *self, const type *key, int (*comp)(const type *, const type *))                  \
+    int TypeName##_bsearch(const TypeName *self, const type *key, TypeName##_Compare comp)                  \
     {                                                                                                                       \
         int head = 0;                                                                                                       \
         int tail = length - 1;                                                                                              \
@@ -241,14 +247,14 @@
             int comp_mid = comp(key, &self->data[middle]);                                                                  \
             if (comp_mid == 0)                                                                                              \
                 return middle;                                                                                              \
-            else if (0 < comp_mid) /*key가 중간치보다 큼*/                                                           \
+            else if (0 < comp_mid)                                                                                          \
                 --tail, head = middle;                                                                                      \
-            else /*key가 중간치보다 작음*/                                                                          \
+            else                                                                                                            \
                 ++head, tail = middle;                                                                                      \
         }                                                                                                                   \
     }                                                                                                                       \
                                                                                                                             \
-    TypeName##_iterator TypeName##_bfind_by(const TypeName *self, const type *key, int (*comp)(const type *, const type *)) \
+    TypeName##_iterator TypeName##_bfind_by(const TypeName *self, const type *key, TypeName##_Compare comp)                 \
     {                                                                                                                       \
         int index = TypeName##_bsearch(self, key, comp);                                                                    \
         if (0 <= index && index < length)                                                                                   \
@@ -264,7 +270,7 @@
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    size_t TypeName##_indexof_by(const TypeName *self, int (*comp)(const type *))                                           \
+    size_t TypeName##_indexof_by(const TypeName *self, TypeName##_Find comp)                                           \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
@@ -280,7 +286,7 @@
         return length;                                                                                                      \
     }                                                                                                                       \
                                                                                                                             \
-    size_t TypeName##_bindexof_by(const TypeName *self, const type *key, int (*comp)(const type *, const type *))           \
+    size_t TypeName##_bindexof_by(const TypeName *self, const type *key, TypeName##_Compare *comp)                          \
     {                                                                                                                       \
         int index = TypeName##_bsearch(self, key, comp);                                                                    \
         if (0 <= index && index < length)                                                                                   \
@@ -296,7 +302,7 @@
         return 0;                                                                                                           \
     }                                                                                                                       \
                                                                                                                             \
-    bool TypeName##_contains_by(const TypeName *self, int (*comp)(const type *))                                            \
+    bool TypeName##_contains_by(const TypeName *self, TypeName##_Find comp)                                                 \
     {                                                                                                                       \
         for (int i = 0; i < length; ++i)                                                                                    \
             if (comp(&self->data[i]))                                                                                       \
@@ -371,7 +377,6 @@
         return temp;                                                                                                        \
     }                                                                                                                       \
                                                                                                                             \
-    /*반복자 메서드 정의*/                                                                                          \
     void TypeName##_iterator_next(TypeName##_iterator *self)                                                                \
     {                                                                                                                       \
         ++(self->ptr);                                                                                                      \
